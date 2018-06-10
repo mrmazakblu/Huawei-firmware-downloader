@@ -158,15 +158,31 @@ if errorlevel 1 (
 	pause
 	goto start
 ) else (
-	cecho {03}.  %mlc% dladdress found, ok continue {#}               *{\n}
+	cls
+	cecho  {0c} ***************************************************{#}{\n}
+	cecho {03}. * %mlc% dladdress found, ok continue {#}               *{\n}
+	cecho {03}. *                                                      *{\n}
+	cecho  {0c} ***************************************************{#}{\n}
 )
-type %~dp0\version-numbered.txt | more
 :menuLOOP
 	::Load up our menu selections
+cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
 	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0\version-numbered.txt""') do echo.  %%A
 	set choice=
-	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:EOF
+	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:end
+	echo %choice%
+	for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0\dladdress-numbered.txt""') do echo %%A >> %~dp0\good-choice.txt
+	find "%choice%" "%~dp0\good-choice.txt" > nul
+if errorlevel 1 (
+    echo Made Bad selection 
+	echo Type in only the Number from Line_*
+	pause
+	goto menuLOOP
+) else (
+	echo Applying choice and continueing After press any button
+)
+pause
 	for /f "tokens=3 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0\dladdress-numbered.txt""') do set   dladress=%%A
 set base=%dladress:changelog.xml=%
 %~dp0\bin\wget "%base%filelist.xml" -O %~dp0\UPDATE_list.txt
