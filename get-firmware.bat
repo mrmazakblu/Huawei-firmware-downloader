@@ -1,13 +1,30 @@
 @echo off
+cls
 title 		Firmware Grabber
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
+goto startloop
 :start
+cls
+cls
 IF EXIST "%~dp0\bin" SET PATH=%PATH%;"%~dp0\bin"
 if exist %~dp0\*.txt del %~dp0\*.txt
-if exist %~dp0\UPDATE\%model%-%cust%\changelog.xml del %~dp0\UPDATE\%model%-%cust%\changelog.xml
+if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
+cls
+echo(
+echo(
+cecho  {0c} ***************************************************{#}{\n}
+cecho   *  {0E}   Do You Want to Check Device For Model {#}      *{\n}
+cecho   *  {06}   OR CHOOSE FROM LIST??                  {#}     *{\n}
+cecho   {0c}***************************************************{#}{\n}
+echo(
+echo( 
+CHOICE  /C 12 /M "USE DEVICE FOR MODEL NUMBER?   1=Yes  or   2=NO"
+IF ERRORLEVEL 2 GOTO input
+IF ERRORLEVEL 1 GOTO phone
+:phone
+cls
 echo NEED TO CONNECT TO PHONE TO CHECK MODEL INFORMATION
 echo NEED TO CONNECT TO PHONE TO CHECK MODEL INFORMATION
-cecho   *  {0E}  To Skip ADB Device Check ctrl+c then N do not terminate script  {#}       *{\n}
 adb wait-for-device
 for /f "tokens=*" %%i in ('adb shell getprop ro.product.model') do set model=%%i
 for /f "tokens=*" %%i in ('adb shell getprop ro.product.CustCVersion') do set cust=%%i
@@ -32,6 +49,9 @@ CHOICE  /C 12 /M "CONTINUES WITH THESE SETTINGS  1=Yes  or   2=NO"
 IF ERRORLEVEL 2 GOTO input
 IF ERRORLEVEL 1 GOTO default
 :input
+cls
+set model=
+set cust=
 echo your input must be in same format as default
 echo needs to be CAPITOLIZED and have same -
 echo   ********************************************
@@ -46,7 +66,7 @@ cecho   * {0C}  6   BND-TL10 C00 (China){#}                *{\n}
 cecho   * {0D}  7   BND-L24 C567 (USA) {#}                 *{\n}
 cecho   * {03}  8   BND-L34 C567 (USA){#}                  *{\n}
 cecho   * {07}  4   BND-L22 See Al10 C675{#}               *{\n}
-cecho   * {07}  9   Other  Manual Input Device          {#}               *{\n}
+cecho   * {07}  9   Other  Manual Input Device          {#}*{\n}
 echo   ********************************************
 echo( 
 CHOICE  /C 123456789 /M "Choose Downloaded Version"
@@ -92,8 +112,8 @@ set model=BND-L21
 set cust=C432
 goto default
 :other
-SET /P model="What model would you like to Download for?-Ex BND-L21=="
-SET /P cust="What region code would you like to Download for?=Ex C10=="
+SET /P model="What model would you like to Download for? Ex "BND-L21"  =  "
+SET /P cust="What region code would you like to Download for? Ex "C10"  =  "
 goto default
 :default
 IF "%model%" == "" (
@@ -106,6 +126,7 @@ IF "%cust%" == "" (
 	echo CANNOT CONTINUE WITHOUT CUST
 	pause
 	goto input )
+if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
 %~dp0\bin\wget -O %~dp0\filelist.txt http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model%
 call bin\jrepl "{" "\n{" /M /X /f "%~dp0\filelist.txt" /o -
 call bin\jrepl " , " " : " /M /X /f "%~dp0\filelist.txt" /o -
@@ -118,7 +139,18 @@ for /F "delims=" %%A in ('type "%~dp0\filelist.txt"') do (
 for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0\myText.txt"') do echo %%a >> %~dp0\cust-firmware.txt
 for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0\cust-firmware.txt"') do echo %%a >> %~dp0\full-firmware.txt
 for /f "tokens=6,7,8 delims=:" %%a in ('findstr "changelog_link" "%~dp0\full-firmware.txt"') do echo %%a:%%b:%%c >> %~dp0\dladdress-firmware.txt
+for /f "tokens=2 delims=:" %%a in ('findstr "changelog_link" "%~dp0\full-firmware.txt"') do echo %%a >> %~dp0\version-firmware.txt
 call bin\jrepl " " "" /M /X /f "%~dp0\dladdress-firmware.txt" /o -
+set x=1
+for /f "delims=" %%a in (%~dp0\version-firmware.txt) do (
+  echo Line_!x! %%a >> %~dp0\version-numbered.txt
+  set /a x=!x!+1 )
+set x=1
+for /f "delims=" %%a in (%~dp0\dladdress-firmware.txt) do (
+  echo Line_!x! %%a >> %~dp0\dladdress-numbered.txt
+  set /a x=!x!+1 )
+For /F %%A In ('Find /C "http"^<"%~dp0\dladdress-firmware.txt"') Do (
+    Set "mlc=%%A" )
 find "changelog.xml" /I "%~dp0\dladdress-firmware.txt" > nul
 if errorlevel 1 (
     echo dladdress.txt MISSING information
@@ -126,11 +158,18 @@ if errorlevel 1 (
 	pause
 	goto start
 ) else (
-	echo dladdress.txt ok continue
+	cecho {03}.  %mlc% dladdress found, ok continue {#}               *{\n}
 )
-set /p odladress=<%~dp0\dladdress-firmware.txt
-set base=%odladress:changelog.xml=%
-%~dp0\bin\wget "%odladress:changelog.xml=filelist.xml%" -O %~dp0\UPDATE_list.txt
+type %~dp0\version-numbered.txt | more
+:menuLOOP
+	::Load up our menu selections
+	echo.--------------------------------------------------------------------------------
+	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0\version-numbered.txt""') do echo.  %%A
+	set choice=
+	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:EOF
+	for /f "tokens=3 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0\dladdress-numbered.txt""') do set   dladress=%%A
+set base=%dladress:changelog.xml=%
+%~dp0\bin\wget "%base%filelist.xml" -O %~dp0\UPDATE_list.txt
 find "xml" /I "%~dp0\UPDATE_list.txt" > nul
 if errorlevel 1 (
     echo UPDATE_list.txt MISSING information
@@ -212,7 +251,10 @@ if errorlevel 1 (
 ) else (
 	echo md5-3 ok continue
 )
+mkdir %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
+move %userprofile%\Desktop\UPDATE\%model%-%cust%\*.* %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
 :end
+:EOF
 echo(
 echo   *************************************************************************************
 cecho   *{0E}UPDATE FILES HAVE BEEN SAVED TO UPDATE FOLDR ADDED TO YOUR Desktop{#}      *{\n}
@@ -223,3 +265,6 @@ pause
 ::del "%~dp0\output*.txt"
 del "%~dp0\*.txt"
 exit
+:startloop
+cls
+goto start
