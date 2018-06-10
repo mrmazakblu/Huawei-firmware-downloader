@@ -3,14 +3,11 @@ title 		Firmware Grabber
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 :start
 IF EXIST "%~dp0\bin" SET PATH=%PATH%;"%~dp0\bin"
-if exist %~dp0\dpath.txt del %~dp0\dpath.txt
-if exist %~dp0\subpath-file.txt del %~dp0\subpath-file.txt
-if exist %~dp0\md5.txt del %~dp0\md5.txt
-if exist %~dp0\file.txt del %~dp0\file.txt
-if exist %~dp0\merged-file.txt del %~dp0\merged-file.txt
+if exist %~dp0\*.txt del %~dp0\*.txt
 if exist %~dp0\UPDATE\%model%-%cust%\changelog.xml del %~dp0\UPDATE\%model%-%cust%\changelog.xml
 echo NEED TO CONNECT TO PHONE TO CHECK MODEL INFORMATION
 echo NEED TO CONNECT TO PHONE TO CHECK MODEL INFORMATION
+cecho   *  {0E}  To Skip ADB Device Check ctrl+c then N do not terminate script  {#}       *{\n}
 adb wait-for-device
 for /f "tokens=*" %%i in ('adb shell getprop ro.product.model') do set model=%%i
 for /f "tokens=*" %%i in ('adb shell getprop ro.product.CustCVersion') do set cust=%%i
@@ -21,7 +18,7 @@ IF "%model%" == "" (
 IF "%cust%" == "" echo CUST is blank
 IF "%version%" == "" echo Version is blank
 echo(
-cecho {0E}%model%{#}-{0F}%cust%{#}--{0G}%version%{#}{\n}
+cecho {0E}%model%{#}-{0F}%cust%{#}--{0D}%version%{#}{\n}
 echo(
 echo   ***************************************************
 cecho   *  {0E}    RIGHT NOW MODEL IS SET TO %model%   {#}       *{\n}
@@ -29,6 +26,7 @@ cecho   *  {06}    CUST REGION IS SeT TO %cust%         {#}      *{\n}
 echo   ***************************************************
 echo(
 cecho {0E}  DO YOU WANT TO CONTINUE WITH THESE SETTINGS? {#}{\n}
+cecho {0E}  Select 2 for NO to set model number  {#}{\n}
 echo( 
 CHOICE  /C 12 /M "CONTINUES WITH THESE SETTINGS  1=Yes  or   2=NO"
 IF ERRORLEVEL 2 GOTO input
@@ -39,19 +37,64 @@ echo needs to be CAPITOLIZED and have same -
 echo   ********************************************
 cecho   * {0B}             EXAMPLES   {#}                 *{\n}
 cecho   * {07}     MODELS    REGIONS    {#}               *{\n}
-cecho   * {0E}     BND-L21 C432 (Europe) {#}              *{\n}
-cecho   * {0B}     BND-L21 C185 (Middle East) {#}         *{\n}
-cecho   * {0E}     BND-L21 C10 (Russia){#}                *{\n}
-cecho   * {0A}     BND-AL10 C675 (India){#}               *{\n}
-cecho   * {0E}     BND-AL10 C00 (China){#}                *{\n}
-cecho   * {0C}     BND-TL10 C00 (China){#}                *{\n}
-cecho   * {0D}     BND-L24 C567 (USA) {#}                 *{\n}
-cecho   * {03}     BND-L34 C567 (USA){#}                  *{\n}
-cecho   * {07}     BND-L22 See Al10 C675{#}               *{\n}
+cecho   * {0E}  1   BND-L21 C432 (Europe) {#}              *{\n}
+cecho   * {0B}  2   BND-L21 C185 (Middle East) {#}         *{\n}
+cecho   * {0E}  3   BND-L21 C10 (Russia){#}                *{\n}
+cecho   * {0A}  4   BND-AL10 C675 (India){#}               *{\n}
+cecho   * {0E}  5   BND-AL10 C00 (China){#}                *{\n}
+cecho   * {0C}  6   BND-TL10 C00 (China){#}                *{\n}
+cecho   * {0D}  7   BND-L24 C567 (USA) {#}                 *{\n}
+cecho   * {03}  8   BND-L34 C567 (USA){#}                  *{\n}
+cecho   * {07}  4   BND-L22 See Al10 C675{#}               *{\n}
+cecho   * {07}  9   Other  Manual Input Device          {#}               *{\n}
 echo   ********************************************
 echo( 
-SET /P model="What model would you like to Download for?"
-SET /P cust="What region code would you like to Download for?"
+CHOICE  /C 123456789 /M "Choose Downloaded Version"
+IF ERRORLEVEL 9 GOTO other
+IF ERRORLEVEL 8 GOTO BND-L34-C567
+IF ERRORLEVEL 7 GOTO BND-L24-C567
+IF ERRORLEVEL 6 GOTO BND-TL10-C00
+IF ERRORLEVEL 5 GOTO BND-AL10-C00
+IF ERRORLEVEL 4 GOTO BND-AL10-C675
+IF ERRORLEVEL 3 GOTO BND-L21-C10 
+IF ERRORLEVEL 2 GOTO BND-L21-C185
+IF ERRORLEVEL 1 GOTO BND-L21-C432
+:BND-L34-C567
+set model=BND-L34
+set cust=C567
+goto default
+:BND-L24-C567
+set model=BND-L24
+set cust=C567
+goto default
+:BND-TL10-C00
+set model=BND-TL10
+set cust=C00
+goto default
+:BND-AL10-C00
+set model=BND-AL10
+set cust=C00
+goto default
+:BND-AL10-C675
+set model=BND-AL10
+set cust=C675
+goto default
+:BND-L21-C10
+set model=BND-L21
+set cust=C10
+goto default
+:BND-L21-C185
+set model=BND-L21
+set cust=C185
+goto default
+:BND-L21-C432
+set model=BND-L21
+set cust=C432
+goto default
+:other
+SET /P model="What model would you like to Download for?-Ex BND-L21=="
+SET /P cust="What region code would you like to Download for?=Ex C10=="
+goto default
 :default
 IF "%model%" == "" (
 	echo MODEL IS BLANK
@@ -64,12 +107,19 @@ IF "%cust%" == "" (
 	pause
 	goto input )
 %~dp0\bin\wget -O %~dp0\filelist.txt http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model%
-call %~dp0\bin\jrepl "([\s\S]*?)%cust%([\s\S]*)" "stdout.Write($2);$1" /m /j /f %~dp0\filelist.txt /o %~dp0\trash.txt >%~dp0\before.txt
-call %~dp0\bin\jrepl "([\s\S]*?)FullOTA([\s\S]*)" "stdout.Write($2);$1" /m /j /f %~dp0\before.txt /o %~dp0\trash.txt >%~dp0\after.txt
-call %~dp0\bin\jrepl "([\s\S]*?)filelist_link([\s\S]*)" "stdout.Write($2);$1" /m /j /f %~dp0\after.txt /o %~dp0\trash.txt >%~dp0\before.txt
-call %~dp0\bin\jrepl "([\s\S]*?)http://([\s\S]*)" "stdout.Write($2);$1" /m /j /f %~dp0\before.txt /o %~dp0\trash.txt >%~dp0\after.txt
-call %~dp0\bin\jrepl "([\s\S]*?).xml([\s\S]*)" "stdout.Write($2);$1" /m /j /f %~dp0\after.txt /o %~dp0\dladdress.txt >%~dp0\trash.txt
-find "filelist" /I "%~dp0\dladdress.txt" > nul
+call bin\jrepl "{" "\n{" /M /X /f "%~dp0\filelist.txt" /o -
+call bin\jrepl " , " " : " /M /X /f "%~dp0\filelist.txt" /o -
+setlocal EnableDelayedExpansion
+for /F "delims=" %%A in ('type "%~dp0\filelist.txt"') do (
+  set row=%%A
+  set row=!row:"=!
+  echo.!row!>> "%~dp0\myText.txt"
+)
+for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0\myText.txt"') do echo %%a >> %~dp0\cust-firmware.txt
+for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0\cust-firmware.txt"') do echo %%a >> %~dp0\full-firmware.txt
+for /f "tokens=6,7,8 delims=:" %%a in ('findstr "changelog_link" "%~dp0\full-firmware.txt"') do echo %%a:%%b:%%c >> %~dp0\dladdress-firmware.txt
+call bin\jrepl " " "" /M /X /f "%~dp0\dladdress-firmware.txt" /o -
+find "changelog.xml" /I "%~dp0\dladdress-firmware.txt" > nul
 if errorlevel 1 (
     echo dladdress.txt MISSING information
 	echo Going To Start Again
@@ -78,9 +128,9 @@ if errorlevel 1 (
 ) else (
 	echo dladdress.txt ok continue
 )
-set /p dladress=<%~dp0\dladdress.txt
-set base=http://%dladress:filelist=%
-%~dp0\bin\wget "http://%dladress%.xml" -O %~dp0\UPDATE_list.txt
+set /p odladress=<%~dp0\dladdress-firmware.txt
+set base=%odladress:changelog.xml=%
+%~dp0\bin\wget "%odladress:changelog.xml=filelist.xml%" -O %~dp0\UPDATE_list.txt
 find "xml" /I "%~dp0\UPDATE_list.txt" > nul
 if errorlevel 1 (
     echo UPDATE_list.txt MISSING information
