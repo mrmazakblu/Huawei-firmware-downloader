@@ -178,6 +178,7 @@ if errorlevel 1 (
     echo Made Bad selection 
 	echo Type in only the Number from Line_*
 	pause
+	cls
 	goto menuLOOP
 ) else (
 	echo Applying choice and continueing After press any button
@@ -245,7 +246,7 @@ if errorlevel 1 (
     echo MD5-1 MISSMATCH
 	echo Ending
 	pause
-	exit
+	GOTO:end
 ) else (
 	echo md5-1 ok continue
 )
@@ -254,7 +255,7 @@ if errorlevel 1 (
     echo MD5-2 MISSMATCH
 	echo Ending
 	pause
-	exit
+	GOTO:end
 ) else (
 	echo md5-2 ok continue
 )
@@ -263,7 +264,7 @@ if errorlevel 1 (
     echo MD5-3 MISSMATCH
 	echo Ending
 	pause
-	exit
+	GOTO:end
 ) else (
 	echo md5-3 ok continue
 )
