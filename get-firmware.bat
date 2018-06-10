@@ -1,5 +1,6 @@
 @echo off
 cls
+color 0e
 title 		Firmware Grabber
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 goto startloop
@@ -9,6 +10,35 @@ cls
 IF EXIST "%~dp0\bin" SET PATH=%PATH%;"%~dp0\bin"
 if exist %~dp0\*.txt del %~dp0\*.txt
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
+cls
+echo(
+echo(
+cecho  {0c} ***************************************************{#}{\n}
+cecho   *  {0E}   DO YOU WANT TO DOWNLOAD LATEST SCRIPT {#}      *{\n}
+cecho   *  {06}   OR RUN THIS VERSION??                  {#}     *{\n}
+cecho   {0c}***************************************************{#}{\n}
+echo(
+echo( 
+CHOICE  /C 12 /M "   1=RUN  or   2=UPDATE"
+IF ERRORLEVEL 2 GOTO update
+IF ERRORLEVEL 1 GOTO run
+:update
+IF EXIST "%~dp0\grabber-update\*.txt" del "%~dp0\grabber-update\*.txt" /Q
+IF NOT EXIST "%~dp0\grabber-update" mkdir "%~dp0\grabber-update"
+bin\wget.exe -P %~dp0\grabber-update  https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/get-firmware.bat --no-check-certificate
+echo @echo on > %~dp0\grabber-update\grabber-update.bat
+echo( >> %~dp0\grabber-update\grabber-update.bat
+echo timeout 5 >> %~dp0\grabber-update\grabber-update.bat
+::echo IF EXIST %~dp0\grabber-update\get-firmware.bat xcopy /y %~dp0\grabber-update\get-firmware.bat %~dp0\get-firmware2.bat >> %~dp0\grabber-update\grabber-update.bat
+echo IF EXIST %~dp0grabber-update\get-firmware.bat xcopy /y /f %~dp0grabber-update\get-firmware.bat %~dp0get-firmware2.bat >> %~dp0\grabber-update\grabber-update.bat
+echo timeout 5 >> %~dp0\grabber-update\grabber-update.bat
+echo start %~dp0\get-firmware2.bat >> %~dp0\grabber-update\grabber-update.bat
+echo exit >> %~dp0\grabber-update\grabber-update.bat
+timeout 3
+start %~dp0\grabber-update\grabber-update.bat
+::pause
+exit
+:run
 cls
 echo(
 echo(
