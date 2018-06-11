@@ -25,19 +25,18 @@ IF ERRORLEVEL 1 GOTO run
 :update
 IF EXIST "%~dp0grabber-update" del "%~dp0grabber-update" /Q
 IF NOT EXIST "%~dp0grabber-update" mkdir "%~dp0grabber-update"
-									   
 echo @echo off > %~dp0grabber-update\grabber-update.bat
 echo( >> %~dp0grabber-update\grabber-update.bat
 echo timeout 5 >> %~dp0grabber-update\grabber-update.bat
-echo echo f ^| xcopy /Y %%~dp0get-firmware.bat %~dp0get-firmware.bak >> %~dp0grabber-update\grabber-update.bat
-echo IF EXIST %%~dp0grabber-update\get-firmware.bat echo f ^| xcopy /Y %%~dp0grabber-update\get-firmware.bat %%~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
+echo echo f ^| xcopy /Y %~dp0get-firmware.bat %~dp0get-firmware.bak >> %~dp0grabber-update\grabber-update.bat
+echo IF EXIST %~dp0grabber-update\get-firmware.bat echo f ^| xcopy /Y %~dp0grabber-update\get-firmware.bat %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
 echo timeout 5 >> %~dp0grabber-update\grabber-update.bat
 echo start %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
+echo pause >> %~dp0grabber-update\grabber-update.bat
 echo exit >> %~dp0grabber-update\grabber-update.bat
 pause
 bin\wget.exe -P %~dp0grabber-update\  https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/get-firmware.bat --no-check-certificate
 start %~dp0grabber-update\grabber-update.bat
-																																							
 exit
 :run
 cls
@@ -312,7 +311,6 @@ cecho   *{0E}If you do not want all txt files removed, change the last line on s
 echo   *************************************************************************************
 pause
 del "%~dp0*.txt"
-	 
 exit
 :startloop
 cls
