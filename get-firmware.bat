@@ -29,8 +29,8 @@ bin\wget.exe -P %~dp0\grabber-update  https://raw.githubusercontent.com/mrmazakb
 echo @echo off > %~dp0\grabber-update\grabber-update.bat
 echo( >> %~dp0\grabber-update\grabber-update.bat
 echo timeout 5 >> %~dp0\grabber-update\grabber-update.bat
-echo xcopy /y /f %~dp0get-firmware.bat %~dp0get-firmware.bak >> %~dp0\grabber-update\grabber-update.bat
-echo IF EXIST %~dp0grabber-update\get-firmware.bat xcopy /y /f %~dp0grabber-update\get-firmware.bat %~dp0get-firmware.bat >> %~dp0\grabber-update\grabber-update.bat
+echo echo f | xcopy /Y %~dp0get-firmware.bat %~dp0get-firmware.bak >> %~dp0\grabber-update\grabber-update.bat
+echo IF EXIST %~dp0grabber-update\get-firmware.bat echo f | xcopy /Y %~dp0grabber-update\get-firmware.bat %~dp0get-firmware.bat >> %~dp0\grabber-update\grabber-update.bat
 echo timeout 5 >> %~dp0\grabber-update\grabber-update.bat
 echo start %~dp0\get-firmware.bat >> %~dp0\grabber-update\grabber-update.bat
 echo exit >> %~dp0\grabber-update\grabber-update.bat
