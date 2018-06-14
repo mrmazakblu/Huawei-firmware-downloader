@@ -1,21 +1,22 @@
 @echo off
 cls
 color 0e
-title 		Firmware Grabber V-8
+set ver=V-9
+title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
-goto startloop
 :start
 cls
 cls
 IF EXIST "%~dp0bin" SET PATH=%PATH%;"%~dp0\bin"
 if exist %~dp0*.txt del %~dp0*.txt
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
+::goto transfer-sdcard
 cls
 echo(
 echo(
 cecho  {0c} ***************************************************{#}{\n}
 cecho   *  {0E}   DO YOU WANT TO DOWNLOAD LATEST SCRIPT {#}      *{\n}
-cecho   *  {06}   OR RUN THIS VERSION??  V-8                {#}     *{\n}
+cecho   *  {06}   OR RUN THIS VERSION??  %ver%                {#}     *{\n}
 cecho   {0c}***************************************************{#}{\n}
 echo(
 echo( 
@@ -298,20 +299,78 @@ if errorlevel 1 (
 ) else (
 	echo md5-3 ok continue
 )
-mkdir %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
-move %userprofile%\Desktop\UPDATE\%model%-%cust%\*.* %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
+:transfer-sdcard
+::mkdir %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
+::move %userprofile%\Desktop\UPDATE\%model%-%cust%\*.* %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
+for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
+echo %recovery%
+IF "%recovery%" == "bootdevice" (
+	echo Partition layout Does not match Nougat
+	set HWOTA=HWOTA8)
+set recovery=""
+for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery_ramdisk') do set recovery=%%i
+echo %recovery%
+IF "%recovery%" == "bootdevice" (
+	echo Partition layout Does not match Oreo
+	set HWOTA=HWOTA7)
+echo( 
+echo   ***************************************************
+cecho   * {0B}     Partition table shows you need to use %HWOTA%{#}              *{\n}
+cecho   * {0E}           {#}             *{\n}
+cecho   * {0B}      {#}              *{\n}
+cecho   * {0A}          {#}         *{\n}
+cecho   * {0E}         Move To SDCARD  1=Yes 2=No{#}                    *{\n}
+echo   ***************************************************
+echo( 
+CHOICE  /C 12 /M "Move Download to SDCARD Now 1=Yes  or 2=NO"
+IF ERRORLEVEL 2 GOTO donotmove
+IF ERRORLEVEL 1 GOTO move
+echo(
+:donotmove
+goto end
+adb shell mkdir /mnt/ext_sdcard/%HWOTA%
+adb push %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%\%file1% /mnt/ext_sdcard/%HWOTA%
+adb push %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%\%file2% /mnt/ext_sdcard/%HWOTA%
+adb push %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%\%file3% /mnt/ext_sdcard/%HWOTA%
+:move
+adb shell md5sum /mnt/ext_sdcard/%HWOTA%/*.zip > %~dp0moved-updates-md5.txt
+find "%md5-1%" /I "%~dp0moved-updates-md5.txt" > nul
+if errorlevel 1 (
+    echo MD5-1 MISSMATCH
+	echo Ending
+	pause
+	GOTO:end
+) else (
+	echo md5-1 ok continue
+)
+find "%md5-2%" /I "%~dp0moved-updates-md5.txt" > nul
+if errorlevel 1 (
+    echo MD5-2 MISSMATCH
+	echo Ending
+	pause
+	GOTO:end
+) else (
+	echo md5-2 ok continue
+)
+find "%md5-3%" /I "%~dp0moved-updates-md5.txt" > nul
+if errorlevel 1 (
+    echo MD5-3 MISSMATCH
+	echo Ending
+	pause
+	GOTO:end
+) else (
+	echo md5-3 ok continue
+)
+
 :end
 :EOF
 echo(
 echo   *************************************************************************************
 cecho   *{0E}UPDATE FILES HAVE BEEN SAVED TO UPDATE FOLDR ADDED TO YOUR Desktop{#}      *{\n}
-cecho   *{0E}%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%{#}            *{\n}
+cecho   *{0E}%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/^>=%{#}            *{\n}
 cecho   *{0E}Next line cleans the extra files created during download{#}                *{\n}
 cecho   *{0E}If you do not want all txt files removed, change the last line on script{#}*{\n}
 echo   *************************************************************************************
 pause
 del "%~dp0*.txt"
 exit
-:startloop
-cls
-goto start
