@@ -1,11 +1,11 @@
 @echo off
 cls
+MODE con:cols=58 lines=11
 color 0e
 set ver=V-9
 title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 :start
-cls
 cls
 IF EXIST "%~dp0bin" SET PATH=%PATH%;"%~dp0\bin"
 if exist %~dp0*.txt del %~dp0*.txt
@@ -16,7 +16,7 @@ echo(
 echo(
 cecho  {0c} ***************************************************{#}{\n}
 cecho   *  {0E}   DO YOU WANT TO DOWNLOAD LATEST SCRIPT {#}      *{\n}
-cecho   *  {06}   OR RUN THIS VERSION??  %ver%                {#}     *{\n}
+cecho   *  {06}   OR RUN THIS VERSION??  %ver%           {#}       *{\n}
 cecho   {0c}***************************************************{#}{\n}
 echo(
 echo( 
@@ -70,7 +70,7 @@ cecho {0E}%model%{#}-{0F}%cust%{#}--{0D}%version%{#}{\n}
 echo(
 echo   ***************************************************
 cecho   *  {0E}    RIGHT NOW MODEL IS SET TO %model%   {#}       *{\n}
-cecho   *  {06}    CUST REGION IS SeT TO %cust%         {#}      *{\n}
+cecho   *  {08}    CUST REGION IS SeT TO %cust%         {#}      *{\n}
 echo   ***************************************************
 echo(
 cecho {0E}  DO YOU WANT TO CONTINUE WITH THESE SETTINGS? {#}{\n}
