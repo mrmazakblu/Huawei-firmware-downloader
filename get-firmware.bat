@@ -257,22 +257,23 @@ cecho   * {0B}       NEW VERSION TO DOWNLOAD IS {#}              *{\n}
 cecho   * {0A}           %newversion:/>=% {#}         *{\n}
 cecho   * {0E}         Download 1=Yes 2=No{#}                    *{\n}
 echo   ***************************************************
+set save=%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
 echo( 
 CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO test
 IF ERRORLEVEL 1 GOTO continue
 :continue
-%~dp0bin\wget -P %userprofile%\Desktop\UPDATE\%model%-%cust% %base%%link1%
-%~dp0bin\wget -P %userprofile%\Desktop\UPDATE\%model%-%cust% %base%%link2%
-%~dp0bin\wget -P %userprofile%\Desktop\UPDATE\%model%-%cust% %base%%link3%
+%~dp0bin\wget -P %save% %base%%link1%
+%~dp0bin\wget -P %save% %base%%link2%
+%~dp0bin\wget -P %save% %base%%link3%
 :test
 echo Checking MD5 hashes %file1%
-%~dp0bin\fciv.exe -add %userprofile%\Desktop\UPDATE\%model%-%cust%\%file1% -md5 > %userprofile%\Desktop\UPDATE\%model%-%cust%\%file1:.zip=-md5.txt%
+%~dp0bin\fciv.exe -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
 echo Checking MD5 hashes %file2%
-%~dp0bin\fciv.exe -add %userprofile%\Desktop\UPDATE\%model%-%cust%\%file2% -md5 > %userprofile%\Desktop\UPDATE\%model%-%cust%\%file2:.zip=-md5.txt%
+%~dp0bin\fciv.exe -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt%
 echo Checking MD5 hashes %file3%
-%~dp0bin\fciv.exe -add %userprofile%\Desktop\UPDATE\%model%-%cust%\%file3% -md5 > %userprofile%\Desktop\UPDATE\%model%-%cust%\%file3:.zip=-md5.txt%
-find "%md5-1%" /I "%userprofile%\Desktop\UPDATE\%model%-%cust%\%file1:.zip=-md5.txt%" > nul
+%~dp0bin\fciv.exe -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt%
+find "%md5-1%" /I "%save%\%file1:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
 	echo Ending
@@ -281,7 +282,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-1 ok continue
 )
-find "%md5-2%" /I "%userprofile%\Desktop\UPDATE\%model%-%cust%\%file2:.zip=-md5.txt%" > nul
+find "%md5-2%" /I "%save%\%file2:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
 	echo Ending
@@ -290,7 +291,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-2 ok continue
 )
-find "%md5-3%" /I "%userprofile%\Desktop\UPDATE\%model%-%cust%\%file3:.zip=-md5.txt%" > nul
+find "%md5-3%" /I "%save%\%file3:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
 	echo Ending
@@ -300,8 +301,6 @@ if errorlevel 1 (
 	echo md5-3 ok continue
 )
 :transfer-sdcard
-mkdir %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
-move %userprofile%\Desktop\UPDATE\%model%-%cust%\*.* %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
 for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
 echo %recovery%
 IF "%recovery%" == "bootdevice" (
@@ -328,36 +327,48 @@ IF ERRORLEVEL 1 GOTO move
 echo(
 :donotmove
 goto end
-adb shell mkdir /mnt/ext_sdcard/%HWOTA%
-adb push %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%\%file1% /mnt/ext_sdcard/%HWOTA%
-adb push %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%\%file2% /mnt/ext_sdcard/%HWOTA%
-adb push %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%\%file3% /mnt/ext_sdcard/%HWOTA%
 :move
+adb shell mkdir /mnt/ext_sdcard/%HWOTA%
+:move_1
+adb push %save%\%file1% /mnt/ext_sdcard/%HWOTA%
+:move_2
+adb push %save%\%file2% /mnt/ext_sdcard/%HWOTA%
+:move_3
+adb push %save%\%file3% /mnt/ext_sdcard/%HWOTA%
 adb shell md5sum /mnt/ext_sdcard/%HWOTA%/*.zip > %~dp0moved-updates-md5.txt
 find "%md5-1%" /I "%~dp0moved-updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
-	echo Ending
+	echo Something went wrong during the file move
+	echo MD5 check done after download must have been 
+	echo OK, or the script would have stopped before
+	echo Starting the move over again
 	pause
-	GOTO:end
+	GOTO:move_1
 ) else (
 	echo md5-1 ok continue
 )
 find "%md5-2%" /I "%~dp0moved-updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
-	echo Ending
+	echo Something went wrong during the file move
+	echo MD5 check done after download must have been 
+	echo OK, or the script would have stopped before
+	echo Starting the move over again
 	pause
-	GOTO:end
+	GOTO:move_2
 ) else (
 	echo md5-2 ok continue
 )
 find "%md5-3%" /I "%~dp0moved-updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
-	echo Ending
+	echo Something went wrong during the file move
+	echo MD5 check done after download must have been 
+	echo OK, or the script would have stopped before
+	echo Starting the move over again
 	pause
-	GOTO:end
+	GOTO:move_3
 ) else (
 	echo md5-3 ok continue
 )
