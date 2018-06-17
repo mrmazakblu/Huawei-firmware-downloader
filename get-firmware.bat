@@ -300,8 +300,8 @@ if errorlevel 1 (
 	echo md5-3 ok continue
 )
 :transfer-sdcard
-::mkdir %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
-::move %userprofile%\Desktop\UPDATE\%model%-%cust%\*.* %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
+mkdir %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
+move %userprofile%\Desktop\UPDATE\%model%-%cust%\*.* %userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
 for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
 echo %recovery%
 IF "%recovery%" == "bootdevice" (
