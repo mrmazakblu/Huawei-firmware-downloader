@@ -260,8 +260,8 @@ CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO test
 IF ERRORLEVEL 1 GOTO continue
 :continue
-::%~dp0bin\wget -P %save% %base%%link1%
-::%~dp0bin\wget -P %save% %base%%link2%
+%~dp0bin\wget -P %save% %base%%link1%
+%~dp0bin\wget -P %save% %base%%link2%
 %~dp0bin\wget -P %save% %base%%link3%
 :test
 echo Checking MD5 hashes %file1%
