@@ -214,7 +214,8 @@ if errorlevel 1 (
 	echo Applying choice and continueing After press any button
 )
 for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0dladdress-numbered.txt""') do set   dladress=%%A
-for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
+for /f "tokens=2 delims=, " %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
+::for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 %~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt
 find "xml" /I "%~dp0UPDATE_list.txt" > nul
@@ -253,14 +254,14 @@ cecho   * {0B}       NEW VERSION TO DOWNLOAD IS {#}              *{\n}
 cecho   * {0A}           %newversion% {#}         *{\n}
 cecho   * {0E}         Download 1=Yes 2=No{#}                    *{\n}
 echo   ***************************************************
-set save=%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
+set save=%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%
 echo( 
 CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO test
 IF ERRORLEVEL 1 GOTO continue
 :continue
-%~dp0bin\wget -P %save% %base%%link1%
-%~dp0bin\wget -P %save% %base%%link2%
+::%~dp0bin\wget -P %save% %base%%link1%
+::%~dp0bin\wget -P %save% %base%%link2%
 %~dp0bin\wget -P %save% %base%%link3%
 :test
 echo Checking MD5 hashes %file1%
