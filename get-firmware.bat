@@ -1,6 +1,5 @@
 @echo off
 cls
-MODE con:cols=58 lines=11
 color 0e
 set ver=V-9
 title 		Firmware Grabber %ver%
@@ -202,7 +201,7 @@ cecho  {0c} ***************************************************{#}{\n}
 	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0version-numbered.txt""') do echo.  %%A
 	set choice=
 	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:end
-	echo %choice%
+	echo download choice = %choice%
 	for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0dladdress-numbered.txt""') do echo %%A >> %~dp0good-choice.txt
 	find "%choice%" "%~dp0good-choice.txt" > nul
 if errorlevel 1 (
@@ -214,8 +213,8 @@ if errorlevel 1 (
 ) else (
 	echo Applying choice and continueing After press any button
 )
-pause
-	for /f "tokens=3 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0dladdress-numbered.txt""') do set   dladress=%%A
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0dladdress-numbered.txt""') do set   dladress=%%A
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 %~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt
 find "xml" /I "%~dp0UPDATE_list.txt" > nul
@@ -235,9 +234,9 @@ for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//md5" %~dp0UPDATE_list.txt') do (
 )
 call %~dp0bin\merge.bat
 for /f "tokens=7,9 delims== " %%a in ('findstr "package=" "%~dp0UPDATE_list.txt"') do echo %%b %%a >> %~dp0subpath-file.txt && echo %%a >> %~dp0file.txt
-call %~dp0binjrepl "> " "" /M /X /f "%~dp0subpath-file.txt" /o -
-call %~dp0binjrepl "\x22" "" /M /X /f "%~dp0subpath-file.txt" /o -
-call %~dp0binjrepl "\x22" "" /M /X /f "%~dp0file.txt" /o -
+call %~dp0bin\jrepl "> " "" /M /X /f "%~dp0subpath-file.txt" /o -
+call %~dp0bin\jrepl "\x22" "" /M /X /f "%~dp0subpath-file.txt" /o -
+call %~dp0bin\jrepl "\x22" "" /M /X /f "%~dp0file.txt" /o -
 < %~dp0subpath-file.txt ( set /P "link1=" & set /P "link2=" & set /P "link3=" )
 < %~dp0file.txt ( set /P "file1=" & set /P "file2=" & set /P "file3=" )
 for /f "tokens=2" %%i in ('findstr "%file1%" "%~dp0merged-file.txt"') do set md5-1=%%i
@@ -246,15 +245,12 @@ for /f "tokens=2" %%i in ('findstr "%file3%" "%~dp0merged-file.txt"') do set md5
 echo %base%%link1%  MD5- %md5-1%
 echo %base%%link2% MD5- %md5-2%
 echo %base%%link3% MD5- %md5-3%
-%~dp0bin\wget -P %userprofile%\Desktop\UPDATE\%model%-%cust% %base%changelog.xml
-for /f "tokens=5,6 delims== " %%a in ('findstr "component" "%userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml"') do echo %%a %%b >> %~dp0newversion.txt
-set /p newversion=<%~dp0newversion.txt
 echo( 
 echo   ***************************************************
 cecho   * {0B}       CURRENT version on phone is{#}              *{\n}
 cecho   * {0E}           %version% {#}             *{\n}
 cecho   * {0B}       NEW VERSION TO DOWNLOAD IS {#}              *{\n}
-cecho   * {0A}           %newversion:/>=% {#}         *{\n}
+cecho   * {0A}           %newversion% {#}         *{\n}
 cecho   * {0E}         Download 1=Yes 2=No{#}                    *{\n}
 echo   ***************************************************
 set save=%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/>=%
@@ -378,7 +374,7 @@ if errorlevel 1 (
 echo(
 echo   *************************************************************************************
 cecho   *{0E}UPDATE FILES HAVE BEEN SAVED TO UPDATE FOLDR ADDED TO YOUR Desktop{#}      *{\n}
-cecho   *{0E}%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion:/^>=%{#}            *{\n}
+cecho   *{0E}%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%{#}            *{\n}
 cecho   *{0E}Next line cleans the extra files created during download{#}                *{\n}
 cecho   *{0E}If you do not want all txt files removed, change the last line on script{#}*{\n}
 echo   *************************************************************************************
