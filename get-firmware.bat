@@ -1,7 +1,7 @@
 @echo off
 cls
 color 0e
-set ver=V-10
+set ver=V-10.1
 title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 :start
