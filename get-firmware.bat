@@ -1,7 +1,7 @@
 @echo off
 cls
 color 0e
-set ver=V-10.1
+set ver=V-10.2
 title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 :start
@@ -82,64 +82,19 @@ IF ERRORLEVEL 1 GOTO default
 cls
 set model=
 set cust=
-echo your input must be in same format as default
-echo needs to be CAPITOLIZED and have same -
-echo   ********************************************
-cecho   * {0B}             EXAMPLES   {#}                 *{\n}
-cecho   * {07}     MODELS    REGIONS    {#}               *{\n}
-cecho   * {0E}  1   BND-L21 C432 (Europe) {#}              *{\n}
-cecho   * {0B}  2   BND-L21 C185 (Middle East) {#}         *{\n}
-cecho   * {0E}  3   BND-L21 C10 (Russia){#}                *{\n}
-cecho   * {0A}  4   BND-AL10 C675 (India){#}               *{\n}
-cecho   * {0E}  5   BND-AL10 C00 (China){#}                *{\n}
-cecho   * {0C}  6   BND-TL10 C00 (China){#}                *{\n}
-cecho   * {0D}  7   BND-L24 C567 (USA) {#}                 *{\n}
-cecho   * {03}  8   BND-L34 C567 (USA){#}                  *{\n}
-cecho   * {07}  4   BND-L22 See Al10 C675{#}               *{\n}
-cecho   * {07}  9   Other  Manual Input Device          {#}*{\n}
-echo   ********************************************
-echo( 
-CHOICE  /C 123456789 /M "Choose Downloaded Version"
-IF ERRORLEVEL 9 GOTO other
-IF ERRORLEVEL 8 GOTO BND-L34-C567
-IF ERRORLEVEL 7 GOTO BND-L24-C567
-IF ERRORLEVEL 6 GOTO BND-TL10-C00
-IF ERRORLEVEL 5 GOTO BND-AL10-C00
-IF ERRORLEVEL 4 GOTO BND-AL10-C675
-IF ERRORLEVEL 3 GOTO BND-L21-C10 
-IF ERRORLEVEL 2 GOTO BND-L21-C185
-IF ERRORLEVEL 1 GOTO BND-L21-C432
-:BND-L34-C567
-set model=BND-L34
-set cust=C567
-goto default
-:BND-L24-C567
-set model=BND-L24
-set cust=C567
-goto default
-:BND-TL10-C00
-set model=BND-TL10
-set cust=C00
-goto default
-:BND-AL10-C00
-set model=BND-AL10
-set cust=C00
-goto default
-:BND-AL10-C675
-set model=BND-AL10
-set cust=C675
-goto default
-:BND-L21-C10
-set model=BND-L21
-set cust=C10
-goto default
-:BND-L21-C185
-set model=BND-L21
-set cust=C185
-goto default
-:BND-L21-C432
-set model=BND-L21
-set cust=C432
+:deviceLOOP
+color 0A
+	::Load up our menu selections
+cecho  {0c} ***************************************************{#}{\n}
+	echo.--------------------------------------------------------------------------------
+	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Device-List.txt""') do echo.  %%A
+	set choice=
+	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:end
+	echo download choice = %choice%
+IF %choice% == m ( goto other )
+IF %choice% == M ( goto other )
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Device-List.txt""') do set   model=%%A
+for /f "tokens=3" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Device-List.txt""') do set cust=%%A
 goto default
 :other
 SET /P model="What model would you like to Download for? Ex "BND-L21"  =  "
