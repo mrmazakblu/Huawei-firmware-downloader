@@ -91,8 +91,9 @@ echo Line_5   BND-AL10 C00 China
 echo Line_6   BND-TL10 C00 China
 echo Line_7   BND-L24 C567 USA
 echo Line_8   BND-L34 C567 USA
-echo Line_4   BND-L22 See Al10-C675
-echo Line_M   Other Manual Entry )  > %~dp0bin\Device-List.txt
+echo Line_**   BND-L22 See Al10-C675
+echo Line_M   Other Manual Entry
+echo( )  > %~dp0bin\Device-List.txt
 color 0A
 	::Load up our menu selections
 cecho  {0c} ***************************************************{#}{\n}

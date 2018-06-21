@@ -1,10 +1,11 @@
-Line_1   BND-L21 C432 (Europe)
-Line_2   BND-L21 C185 (Middle East)
-Line_3   BND-L21 C10 (Russia)
-Line_4   BND-AL10 C675 (India)
-Line_5   BND-AL10 C00 (China)
-Line_6   BND-TL10 C00 (China)
-Line_7   BND-L24 C567 (USA)
-Line_8   BND-L34 C567 (USA)
-Line_4   BND-L22 See Al10-C675
+Line_1   BND-L21 C432 Europe
+Line_2   BND-L21 C185 Middle East
+Line_3   BND-L21 C10 Russia
+Line_4   BND-AL10 C675 India
+Line_5   BND-AL10 C00 China
+Line_6   BND-TL10 C00 China
+Line_7   BND-L24 C567 USA
+Line_8   BND-L34 C567 USA
+Line_**   BND-L22 See Al10-C675
 Line_M   Other Manual Entry
+ 
