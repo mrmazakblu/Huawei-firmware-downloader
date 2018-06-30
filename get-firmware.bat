@@ -337,6 +337,15 @@ if errorlevel 1 (
 ) else (
 	echo md5-3 ok continue
 )
+pause
+goto end
+:extract
+set working=%~dp0
+cd %save%
+%working%bin\unzip.exe -u %save%\%file1% -d %save%\update\
+echo perl %working%split_updata.pl-master\splitupdate %save%\update\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
+cd %working%
+pause
 :transfer-sdcard
 for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
 echo %recovery%
@@ -409,7 +418,6 @@ if errorlevel 1 (
 ) else (
 	echo md5-3 ok continue
 )
-
 :end
 :EOF
 echo(
