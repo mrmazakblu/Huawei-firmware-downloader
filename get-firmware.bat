@@ -83,35 +83,109 @@ cls
 set model=
 set cust=
 :deviceLOOP
-IF NOT EXIST "%~dp0bin\Device-List.txt" ( echo Line_1   BND-L21 C432 Europe
-echo Line_2   BND-L21 C185 Middle East
-echo Line_3   BND-L21 C10 Russia
-echo Line_4   BND-AL10 C675 India
-echo Line_5   BND-AL10 C00 China
-echo Line_6   BND-TL10 C00 China
-echo Line_7   BND-L24 C567 USA
-echo Line_8   BND-L34 C567 USA
-echo Line_**   BND-L22 See Al10-C675
+IF EXIST "%~dp0bin\Device-List.txt" del "%~dp0bin\Device-List.txt" /Q
+IF NOT EXIST "%~dp0bin\Device-List.txt" ( echo Line_1   ALP
+echo Line_2   BKL
+echo Line_3   BLA
+echo Line_4   BLN
+echo Line_5   BND   
+echo Line_6   CMR
+echo Line_7   DUK
+echo Line_8   FIG
+echo Line_9   LLD
+echo Line_10   LON
+echo Line_11   MHA
+echo Line_12   PRA
+echo Line_13   RNE
+echo Line_14   SHT
+echo Line_15   STF
+echo Line_16   VKY
+echo Line_17   VTR
+echo Line_18   WAS
 echo Line_M   Other Manual Entry
 echo( )  > %~dp0bin\Device-List.txt
+IF EXIST "%~dp0bin\model-List.txt" del "%~dp0bin\model-List.txt" /Q
+IF NOT EXIST "%~dp0bin\model-List.txt" ( echo Line_1   AL00
+echo Line_2   AL09
+echo Line_3   AL10
+echo Line_4   AL19
+echo Line_5   L00  
+echo Line_6   L01
+echo Line_7   L02
+echo Line_8   L03
+echo Line_9   L09
+echo Line_10   L21
+echo Line_11   L22
+echo Line_12   L23
+echo Line_13   L24
+echo Line_14   L29
+echo Line_15   L31
+echo Line_16   L34
+echo Line_17   LA1
+echo Line_18   LX1
+echo Line_19   LX2
+echo Line_20   LX3
+echo Line_21   TL00
+echo Line_22   TL10
+echo Line_23   W09
+echo Line_24   W19
+echo Line_M   Other Manual Entry
+echo( )  > %~dp0bin\model-List.txt
+IF EXIST "%~dp0bin\Region-List.txt" del "%~dp0bin\Region-List.txt" /Q
+IF NOT EXIST "%~dp0bin\Region-List.txt" ( echo Line_1   C432 Europe
+echo Line_2   C185 Middle East
+echo Line_3   C10 Russia
+echo Line_4   C675 India
+echo Line_5   C00 China
+echo Line_6   C567 USA
+echo Line_M   Other Manual Entry
+echo( )  > %~dp0bin\Region-List.txt
 color 0A
-	::Load up our menu selections
+cls
+	::Load up our menu selections for device code
 cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
 	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Device-List.txt""') do echo.  %%A
 	set choice=
-	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:end
+	echo.&set /p choice= TYPE LINE NUMBER OF DEVICE CODE or hit ENTER to exit: ||GOTO:end
 	echo download choice = %choice%
 IF %choice% == m ( goto other )
 IF %choice% == M ( goto other )
-for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Device-List.txt""') do set   model=%%A
-for /f "tokens=3" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Device-List.txt""') do set cust=%%A
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Device-List.txt""') do set   part-A=%%A
+color 0A
+cls
+	::Load up our menu selections for model code
+cecho  {0c} ***************************************************{#}{\n}
+	echo.--------------------------------------------------------------------------------
+	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\model-List.txt""') do echo.  %%A
+	set choice=
+	echo.&set /p choice= TYPE LINE NUMBER OF MODEL CODE or hit ENTER to exit: ||GOTO:end
+	echo download choice = %choice%
+IF %choice% == m ( goto other )
+IF %choice% == M ( goto other )
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\model-List.txt""') do set   part-B=%%A
+set model=%part-A%-%part-B%
+color 0A
+cls
+	::Load up our menu selections for region code
+cecho  {0c} ***************************************************{#}{\n}
+	echo.--------------------------------------------------------------------------------
+	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Region-List.txt""') do echo.  %%A
+	set choice=
+	echo.&set /p choice= TYPE LINE NUMBER OF REGION CODE or hit ENTER to exit: ||GOTO:end
+	echo download choice = %choice%
+IF %choice% == m ( goto other )
+IF %choice% == M ( goto other )
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Region-List.txt""') do set cust=%%A
 goto default
 :other
 SET /P model="What model would you like to Download for? Ex "BND-L21"  =  "
 SET /P cust="What region code would you like to Download for? Ex "C10"  =  "
 goto default
 :default
+echo SELECTION IS SET TO
+echo %model% %cust%
+pause
 IF "%model%" == "" (
 	echo MODEL IS BLANK
 	echo CANNOT CONTINUE WITHOUT MODEL
