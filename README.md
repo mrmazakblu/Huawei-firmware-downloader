@@ -25,14 +25,23 @@ to flash the update.
 
 
 Included exectables from:
+  
   Splitupdate --- https://github.com/marcominetti/split_updata.pl
+  
   perl ----       http://strawberryperl.com/releases.html   64bit 5.26.2.1 portable
+  
   cecho ---       https://github.com/lordmulder/cecho
+  
   fciv ---        https://www.microsoft.com/en-us/download/details.aspx?id=11533
+  
   JREPL.BAT ---   https://github.com/aneeshdurg/JRepl
+  
   unzip.exe  ---  http://gnuwin32.sourceforge.net/packages/unzip.htm
+  
   wget.exe  ---   http://gnuwin32.sourceforge.net/packages/wget.htm
+  
   xml.exe ---     http://xmlstar.sourceforge.net/
+  
   merge.bat  ---
   
   
