@@ -16,3 +16,6 @@ matches the supported devices on opinKirn site.
 First part of batch is tied to an online update feature, that will check here on github for newest version 
 of the script.
 
+After file download, script offers to extract the update.zip files, then extract the images from UPDATE.APP. All 
+downloads and extracted files are sent to "Update" folder created on the desktop of the user-profile of loged in user.
+Into subfolder order of "device", "build number".
