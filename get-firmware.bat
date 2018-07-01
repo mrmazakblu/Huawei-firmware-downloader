@@ -24,13 +24,13 @@ CHOICE  /C 12 /M "   1=RUN  or   2=UPDATE"
 IF ERRORLEVEL 2 GOTO update
 IF ERRORLEVEL 1 GOTO run
 :update
-IF EXIST "%~dp0grabber-update" del "%~dp0grabber-update" /Q
+IF EXIST "%~dp0grabber-update" rd /s /q "%~dp0grabber-update" /Q
 IF NOT EXIST "%~dp0grabber-update" mkdir "%~dp0grabber-update"
 echo @echo off > %~dp0grabber-update\grabber-update.bat
 echo( >> %~dp0grabber-update\grabber-update.bat
 echo timeout 10 >> %~dp0grabber-update\grabber-update.bat
-echo IF EXIST "%~dp0bin" del "%~dp0bin" /Q >> %~dp0grabber-update\grabber-update.bat
-echo IF EXIST %~dp0grabber-update\Huawei-firmware-downloader-master\bin echo d ^| xcopy /Y %~dp0grabber-update\Huawei-firmware-downloader-master\bin %~dp0bin >> %~dp0grabber-update\grabber-update.bat
+echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" rd /s /q "%~dp0bin" /Q >> %~dp0grabber-update\grabber-update.bat
+echo IF EXIST %~dp0grabber-update\Huawei-firmware-downloader-master\bin echo d ^| xcopy /Y /E /H  %~dp0grabber-update\Huawei-firmware-downloader-master\bin %~dp0bin >> %~dp0grabber-update\grabber-update.bat
 echo echo f ^| xcopy /Y %~dp0get-firmware.bat %~dp0get-firmware.bak >> %~dp0grabber-update\grabber-update.bat
 echo IF EXIST %~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat echo f ^| xcopy /Y %~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
 echo timeout 5 >> %~dp0grabber-update\grabber-update.bat
