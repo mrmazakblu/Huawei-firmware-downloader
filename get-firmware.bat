@@ -1,7 +1,7 @@
 @echo off
 cls
 color 0e
-set ver=V-10.2
+set ver=V-10.4
 title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 :start
@@ -9,13 +9,12 @@ cls
 IF EXIST "%~dp0bin" SET PATH=%PATH%;"%~dp0\bin"
 if exist %~dp0*.txt del %~dp0*.txt
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
-::goto transfer-sdcard
 cls
 echo(
 echo(
 cecho  {0c} ***************************************************{#}{\n}
 cecho   *  {0E}   DO YOU WANT TO DOWNLOAD LATEST SCRIPT {#}      *{\n}
-cecho   *  {06}   OR RUN THIS VERSION??  %ver%           {#}       *{\n}
+cecho   *  {06}   OR RUN CURRENT VERSION??  %ver%           {#}       *{\n}
 cecho   {0c}***************************************************{#}{\n}
 echo(
 echo( 
@@ -48,7 +47,7 @@ cecho   *  {06}   OR CHOOSE FROM LIST??                  {#}     *{\n}
 cecho   {0c}***************************************************{#}{\n}
 echo(
 echo( 
-CHOICE  /C 12 /M "USE DEVICE FOR MODEL NUMBER?   1=Yes  or   2=NO"
+CHOICE  /C 12 /M "USE ADB TO GET MODEL NUMBER?   1=Yes  or   2=NO"
 IF ERRORLEVEL 2 GOTO input
 IF ERRORLEVEL 1 GOTO phone
 :phone
@@ -70,10 +69,10 @@ echo(
 echo   ***************************************************
 cecho   *  {0E}    RIGHT NOW MODEL IS SET TO %model%   {#}       *{\n}
 cecho   *  {08}    CUST REGION IS SeT TO %cust%         {#}      *{\n}
+cecho   *{0E}DO YOU WANT TO CONTINUE WITH THESE SETTINGS? {#}    *{\n}
+cecho   *{0E}SELECT #2 FOR NO TO SET DIFFERENT MODEL NUMBER{#}   *{\n}
 echo   ***************************************************
 echo(
-cecho {0E}  DO YOU WANT TO CONTINUE WITH THESE SETTINGS? {#}{\n}
-cecho {0E}  Select 2 for NO to set model number  {#}{\n}
 echo( 
 CHOICE  /C 12 /M "CONTINUES WITH THESE SETTINGS  1=Yes  or   2=NO"
 IF ERRORLEVEL 2 GOTO input
@@ -140,6 +139,7 @@ echo Line_5   C00 China
 echo Line_6   C567 USA
 echo Line_M   Other Manual Entry
 echo( )  > %~dp0bin\Region-List.txt
+:deviceLOOP
 color 0A
 cls
 	::Load up our menu selections for device code
@@ -151,7 +151,19 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo download choice = %choice%
 IF %choice% == m ( goto other )
 IF %choice% == M ( goto other )
+for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Device-List.txt""') do echo %%A >> %~dp0device-choice.txt
+	find "%choice%" "%~dp0device-choice.txt" > nul
+if errorlevel 1 (
+    echo Made Bad selection 
+	echo Type in only the Number from Line_*
+	pause
+	cls
+	goto deviceLOOP
+) else (
+	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
+)
 for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Device-List.txt""') do set   part-A=%%A
+:modelLOOP
 color 0A
 cls
 	::Load up our menu selections for model code
@@ -163,8 +175,20 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo download choice = %choice%
 IF %choice% == m ( goto other )
 IF %choice% == M ( goto other )
+for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\model-List.txt""') do echo %%A >> %~dp0model-choice.txt
+	find "%choice%" "%~dp0model-choice.txt" > nul
+if errorlevel 1 (
+    echo Made Bad selection 
+	echo Type in only the Number from Line_*
+	pause
+	cls
+	goto modelLOOP
+) else (
+	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
+)
 for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\model-List.txt""') do set   part-B=%%A
 set model=%part-A%-%part-B%
+:regionLOOp
 color 0A
 cls
 	::Load up our menu selections for region code
@@ -176,6 +200,17 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo download choice = %choice%
 IF %choice% == m ( goto other )
 IF %choice% == M ( goto other )
+for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Region-List.txt""') do echo %%A >> %~dp0region-choice.txt
+	find "%choice%" "%~dp0region-choice.txt" > nul
+if errorlevel 1 (
+    echo Made Bad selection 
+	echo Type in only the Number from Line_*
+	pause
+	cls
+	goto regionLOOP
+) else (
+	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
+)
 for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Region-List.txt""') do set cust=%%A
 goto default
 :other
@@ -185,7 +220,7 @@ goto default
 :default
 echo SELECTION IS SET TO
 echo %model% %cust%
-pause
+timeout 3
 IF "%model%" == "" (
 	echo MODEL IS BLANK
 	echo CANNOT CONTINUE WITHOUT MODEL
@@ -251,11 +286,10 @@ if errorlevel 1 (
 	cls
 	goto menuLOOP
 ) else (
-	echo Applying choice and continueing After press any button
+	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
 for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0dladdress-numbered.txt""') do set   dladress=%%A
 for /f "tokens=2 delims=, " %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
-::for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 %~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt
 find "xml" /I "%~dp0UPDATE_list.txt" > nul
@@ -313,39 +347,56 @@ echo Checking MD5 hashes %file3%
 find "%md5-1%" /I "%save%\%file1:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
-	echo Ending
+	echo Something Has Gone Wrong
+	echo Update %file1% does not match MD5
+	echo Tool will continue, But you should not use %file1%
 	pause
-	GOTO:end
 ) else (
 	echo md5-1 ok continue
 )
 find "%md5-2%" /I "%save%\%file2:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
-	echo Ending
+	echo Something Has Gone Wrong
+	echo Update %file2% does not match MD5
+	echo Tool will continue, But you should not use %file2%
 	pause
-	GOTO:end
 ) else (
 	echo md5-2 ok continue
 )
 find "%md5-3%" /I "%save%\%file3:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
-	echo Ending
+	echo Something Has Gone Wrong
+	echo Update %file3% does not match MD5
+	echo Tool will continue, But you should not use %file3%
 	pause
-	GOTO:end
 ) else (
 	echo md5-3 ok continue
 )
-pause
-goto end
+echo( 
+echo   ***************************************************
+cecho   * {0B}      EXTRACT IMAGES FROM UPDATE.APP  {#}     *{\n}
+cecho   * {0E}                             {#}              *{\n}
+cecho   * {0B}                             {#}              *{\n}
+cecho   * {0A}                             {#}              *{\n}
+cecho   * {0E}                             {#}              *{\n}
+echo   ***************************************************
+echo( 
+CHOICE  /C 12 /M "EXTRACT IMAGES Now 1=Yes  or 2=NO"
+IF ERRORLEVEL 2 GOTO transfer-sdcard
+IF ERRORLEVEL 1 GOTO extract
+echo(
 :extract
 set working=%~dp0
 cd %save%
-%working%bin\unzip.exe -u %save%\%file1% -d %save%\update\
-echo perl %working%split_updata.pl-master\splitupdate %save%\update\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
+%working%bin\unzip.exe -u %save%\%file1% -d %save%\update1\
+%working%bin\unzip.exe -u %save%\%file2% -d %save%\update2\
+%working%bin\unzip.exe -u %save%\%file3% -d %save%\update3\
+echo perl %working%split_updata.pl-master\splitupdate %save%\update1\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
+echo perl %working%split_updata.pl-master\splitupdate %save%\update2\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
+echo perl %working%split_updata.pl-master\splitupdate %save%\update3\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
 cd %working%
-pause
 :transfer-sdcard
 for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
 echo %recovery%
@@ -360,11 +411,11 @@ IF "%recovery%" == "bootdevice" (
 	set HWOTA=HWOTA7)
 echo( 
 echo   ***************************************************
-cecho   * {0B}     Partition table shows you need to use %HWOTA%{#}              *{\n}
-cecho   * {0E}           {#}             *{\n}
-cecho   * {0B}      {#}              *{\n}
-cecho   * {0A}          {#}         *{\n}
-cecho   * {0E}         Move To SDCARD  1=Yes 2=No{#}                    *{\n}
+cecho   * {0B}     Partition table shows you need to use %HWOTA%{#}      *{\n}
+cecho   * {0E}      {#}                                                  *{\n}
+cecho   * {0B}      {#}                                                  *{\n}
+cecho   * {0A}      {#}                                                  *{\n}
+cecho   * {0E}         Move To SDCARD  1=Yes 2=No{#}                     *{\n}
 echo   ***************************************************
 echo( 
 CHOICE  /C 12 /M "Move Download to SDCARD Now 1=Yes  or 2=NO"
