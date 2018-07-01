@@ -22,3 +22,9 @@ Into subfolder order of "device", "build number".
 
 Last section of tool, offers to adb push the update files to external_sdcard on device . To be able to use HWOTA
 to flash the update.
+
+
+Included exectables from:
+  Splitupdate --- https://github.com/marcominetti/split_updata.pl
+  perl ----       http://strawberryperl.com/releases.html   64bit 5.26.2.1 portable
+  
