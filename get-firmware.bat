@@ -393,9 +393,9 @@ cd %save%
 %working%bin\unzip.exe -u %save%\%file1% -d %save%\update1\
 %working%bin\unzip.exe -u %save%\%file2% -d %save%\update2\
 %working%bin\unzip.exe -u %save%\%file3% -d %save%\update3\
-%working%bin\perl\bin\perl.exe %working%split_updata.pl-master\splitupdate %save%\update1\UPDATE.APP
-%working%bin\perl\bin\perl.exe %working%split_updata.pl-master\splitupdate %save%\update2\UPDATE.APP
-%working%bin\perl\bin\perl.exe %working%split_updata.pl-master\splitupdate %save%\update3\UPDATE.APP
+%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update1\UPDATE.APP
+%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update2\UPDATE.APP
+%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update3\UPDATE.APP
 cd %working%
 :transfer-sdcard
 for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
