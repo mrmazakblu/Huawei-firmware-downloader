@@ -19,3 +19,6 @@ of the script.
 After file download, script offers to extract the update.zip files, then extract the images from UPDATE.APP. All 
 downloads and extracted files are sent to "Update" folder created on the desktop of the user-profile of loged in user.
 Into subfolder order of "device", "build number".
+
+Last section of tool, offers to adb push the update files to external_sdcard on device . To be able to use HWOTA
+to flash the update.
