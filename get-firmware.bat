@@ -1,7 +1,7 @@
 @echo off
 cls
 color 0e
-set ver=V-10.4
+set ver=V-10.6
 title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 :start
@@ -9,6 +9,8 @@ cls
 IF EXIST "%~dp0bin" SET PATH=%PATH%;"%~dp0\bin"
 if exist %~dp0*.txt del %~dp0*.txt
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
+IF EXIST "%~dp0update-logs" del "%~dp0update-logs" /Q
+IF NOT EXIST "%~dp0update-logs" mkdir "%~dp0update-logs"
 cls
 echo(
 echo(
@@ -26,16 +28,21 @@ IF EXIST "%~dp0grabber-update" del "%~dp0grabber-update" /Q
 IF NOT EXIST "%~dp0grabber-update" mkdir "%~dp0grabber-update"
 echo @echo off > %~dp0grabber-update\grabber-update.bat
 echo( >> %~dp0grabber-update\grabber-update.bat
-echo timeout 5 >> %~dp0grabber-update\grabber-update.bat
+echo timeout 10 >> %~dp0grabber-update\grabber-update.bat
+echo IF EXIST "%~dp0bin" del "%~dp0bin" /Q >> %~dp0grabber-update\grabber-update.bat
+echo IF EXIST %~dp0grabber-update\Huawei-firmware-downloader-master\bin echo d ^| xcopy /Y %~dp0grabber-update\Huawei-firmware-downloader-master\bin %~dp0bin >> %~dp0grabber-update\grabber-update.bat
 echo echo f ^| xcopy /Y %~dp0get-firmware.bat %~dp0get-firmware.bak >> %~dp0grabber-update\grabber-update.bat
-echo IF EXIST %~dp0grabber-update\get-firmware.bat echo f ^| xcopy /Y %~dp0grabber-update\get-firmware.bat %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
+echo IF EXIST %~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat echo f ^| xcopy /Y %~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
 echo timeout 5 >> %~dp0grabber-update\grabber-update.bat
 echo start %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
-echo pause >> %~dp0grabber-update\grabber-update.bat
+echo timeout 2 >> %~dp0grabber-update\grabber-update.bat
 echo exit >> %~dp0grabber-update\grabber-update.bat
-pause
-bin\wget.exe -P %~dp0grabber-update\  https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/get-firmware.bat --no-check-certificate
+echo Downloading files from GitHub Repo
+bin\wget.exe -P %~dp0grabber-update\ https://github.com/mrmazakblu/Huawei-firmware-downloader/archive/master.zip 2> update-logs\tool-download-log.txt
+%~dp0bin\unzip.exe -u %~dp0grabber-update\master.zip -d %~dp0grabber-update\
 start %~dp0grabber-update\grabber-update.bat
+echo DONE WITH DOWNLAD. EXITING NOW TO UPDATE THE BIN AND THIS SCRIPT
+timeout 3
 exit
 :run
 cls
@@ -232,7 +239,8 @@ IF "%cust%" == "" (
 	pause
 	goto input )
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
-%~dp0bin\wget -O %~dp0filelist.txt http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model%
+echo Downloading Info For %model%
+%~dp0bin\wget -O %~dp0filelist.txt http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model% 2> update-logs\download-log.txt
 call bin\jrepl "{" "\n{" /M /X /f "%~dp0\filelist.txt" /o -
 call bin\jrepl " , " " : " /M /X /f "%~dp0\filelist.txt" /o -
 setlocal EnableDelayedExpansion
@@ -291,7 +299,8 @@ if errorlevel 1 (
 for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0dladdress-numbered.txt""') do set   dladress=%%A
 for /f "tokens=2 delims=, " %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
-%~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt
+echo Downloading Filelist
+%~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt 2> update-logs\filelist-download-log.txt
 find "xml" /I "%~dp0UPDATE_list.txt" > nul
 if errorlevel 1 (
     echo UPDATE_list.txt MISSING information
@@ -334,9 +343,12 @@ CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO test
 IF ERRORLEVEL 1 GOTO continue
 :continue
-%~dp0bin\wget -P %save% %base%%link1%
-%~dp0bin\wget -P %save% %base%%link2%
-%~dp0bin\wget -P %save% %base%%link3%
+echo DOWNLOADING %link1%
+%~dp0bin\wget -P %save% %base%%link1% 2> update-logs\%link1%-download-log.txt
+echo DOWNLOADING %link2%
+%~dp0bin\wget -P %save% %base%%link2% 2> update-logs\%link2%-download-log.txt
+echo DOWNLOADING %link3%
+%~dp0bin\wget -P %save% %base%%link3% 2> update-logs\%link3%-download-log.txt
 :test
 echo Checking MD5 hashes %file1%
 %~dp0bin\fciv.exe -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
@@ -393,9 +405,9 @@ cd %save%
 %working%bin\unzip.exe -u %save%\%file1% -d %save%\update1\
 %working%bin\unzip.exe -u %save%\%file2% -d %save%\update2\
 %working%bin\unzip.exe -u %save%\%file3% -d %save%\update3\
-%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update1\UPDATE.APP
-%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update2\UPDATE.APP
-%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update3\UPDATE.APP
+echo perl %working%split_updata.pl-master\splitupdate %save%\update1\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
+echo perl %working%split_updata.pl-master\splitupdate %save%\update2\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
+echo perl %working%split_updata.pl-master\splitupdate %save%\update3\UPDATE.APP | call %working%strawberry-perl-5.26.2.1-64bit-portable\portableshell.bat
 cd %working%
 :transfer-sdcard
 for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
