@@ -44,4 +44,4 @@ Included exectables from:
   
   merge.bat  ---
   
-  
+  xpath.bat  ---  https://github.com/npocmaka/batch.scripts/blob/master/hybrids/jscript/xpath.bat
