@@ -310,25 +310,20 @@ if errorlevel 1 (
 ) else (
 	echo UPDATE_list.txt ok continue
 )
-for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//dpath" %~dp0UPDATE_list.txt') do (
-	echo %%a >> %~dp0dpath.txt
-)
-for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//md5" %~dp0UPDATE_list.txt') do (
-	echo %%a >> %~dp0md5.txt
-)
+for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//dpath" %~dp0UPDATE_list.txt') do echo %%a >> %~dp0dpath.txt
+for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//md5" %~dp0UPDATE_list.txt') do echo %%a >> %~dp0md5.txt
 call %~dp0bin\merge.bat
-for /f "tokens=7,9 delims== " %%a in ('findstr "package=" "%~dp0UPDATE_list.txt"') do echo %%b %%a >> %~dp0subpath-file.txt && echo %%a >> %~dp0file.txt
-call %~dp0bin\jrepl "> " "" /M /X /f "%~dp0subpath-file.txt" /o -
-call %~dp0bin\jrepl "\x22" "" /M /X /f "%~dp0subpath-file.txt" /o -
-call %~dp0bin\jrepl "\x22" "" /M /X /f "%~dp0file.txt" /o -
-< %~dp0subpath-file.txt ( set /P "link1=" & set /P "link2=" & set /P "link3=" )
+for /f "tokens=* delims=" %%# in ('%~dp0bin\xpath.bat "%~dp0UPDATE_list.txt" "//@package"') do echo %%# >> %~dp0file.txt
+echo /> %~dp0subpath.txt
+for /f "tokens=* delims=" %%# in ('%~dp0bin\xpath.bat "%~dp0UPDATE_list.txt" "//@subpath"') do echo %%#/>> %~dp0subpath.txt
+< %~dp0subpath.txt ( set /P "link1=" & set /P "link2=" & set /P "link3=" )
 < %~dp0file.txt ( set /P "file1=" & set /P "file2=" & set /P "file3=" )
 for /f "tokens=2" %%i in ('findstr "%file1%" "%~dp0merged-file.txt"') do set md5-1=%%i
 for /f "tokens=2" %%i in ('findstr "%file2%" "%~dp0merged-file.txt"') do set md5-2=%%i
 for /f "tokens=2" %%i in ('findstr "%file3%" "%~dp0merged-file.txt"') do set md5-3=%%i
-echo %base%%link1%  MD5- %md5-1%
-echo %base%%link2% MD5- %md5-2%
-echo %base%%link3% MD5- %md5-3%
+echo %base%%link1%%file1%  MD5- %md5-1%
+echo %base%%link2%%file2% MD5- %md5-2%
+echo %base%%link3%%file3% MD5- %md5-3%
 echo( 
 echo   ***************************************************
 cecho   * {0B}       CURRENT version on phone is{#}              *{\n}
@@ -343,12 +338,12 @@ CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO test
 IF ERRORLEVEL 1 GOTO continue
 :continue
-echo DOWNLOADING %link1%
-%~dp0bin\wget -P %save% %base%%link1% 2> update-logs\%link1%-download-log.txt
-echo DOWNLOADING %link2%
-%~dp0bin\wget -P %save% %base%%link2% 2> update-logs\%link2%-download-log.txt
-echo DOWNLOADING %link3%
-%~dp0bin\wget -P %save% %base%%link3% 2> update-logs\%link3%-download-log.txt
+echo DOWNLOADING %link1%%file1%
+%~dp0bin\wget -P %save% %base%%link1%%file1% 2> update-logs\%link1%%file1%-download-log.txt
+echo DOWNLOADING %link2%%file2%
+%~dp0bin\wget -P %save% %base%%link2%%file2% 2> update-logs\%link2%%file2%-download-log.txt
+echo DOWNLOADING %link3%%file3%
+%~dp0bin\wget -P %save% %base%%link3%%file3% 2> update-logs\%link3%%file3%-download-log.txt
 :test
 echo Checking MD5 hashes %file1%
 %~dp0bin\fciv.exe -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
