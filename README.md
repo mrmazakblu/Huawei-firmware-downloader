@@ -1,6 +1,13 @@
 # Huawei-firmware-downloader
 command-script to download ota-updates from teammt
 
+Some formating changes in changelog files used in update has changed since i started this project. These changes 
+have made some of the filtering (grep) strings unpredictable. A minor overhaul to this script and code is needed. For now 
+this project is incomplete.
+
+
+
+
 
 This is a windows batch porogram that can connect to your Huawei device and read device model number,
 it will then search pro-teammt site for full firmware for you device,
