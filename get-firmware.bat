@@ -352,9 +352,12 @@ echo DOWNLOADING %link3%%file3%
 set downloaded="yes"
 :test
 echo Checking MD5 hashes %file1% %file2% %file3%
-%~dp0bin\fciv.exe -add %save%\ -md5 > %save%\Updates-md5.txt%
+set home=%~dp0bin
+cd %save%
+%home%\fciv.exe -add %save%\ -md5 > Updates-md5.txt
 ::%~dp0bin\dd.exe if=%~dp0%file1:.zip=-md5.txt% of=%save%\%~dp0%file1:.zip=-md5.txt%
-find "%md5-1%" /I "%save%\%file1:.zip=-md5.txt%" > nul
+cd %home%
+find "%md5-1%" /I "%save: =%\Updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
 	echo Something Has Gone Wrong
@@ -364,7 +367,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-1 ok continue
 )
-find "%md5-2%" /I "%save%\%file2:.zip=-md5.txt%" > nul
+find "%md5-2%" /I "%save: =%\Updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
 	echo Something Has Gone Wrong
@@ -374,7 +377,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-2 ok continue
 )
-find "%md5-3%" /I "%save%\%file3:.zip=-md5.txt%" > nul
+find "%md5-3%" /I "%save: =%\Updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
 	echo Something Has Gone Wrong
