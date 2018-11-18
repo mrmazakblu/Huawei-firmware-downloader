@@ -1,10 +1,6 @@
 # Huawei-firmware-downloader
 command-script to download ota-updates from teammt
 
-Some formating changes in changelog files used in update has changed since i started this project. These changes 
-have made some of the filtering (grep) strings unpredictable. A minor overhaul to this script and code is needed. For now 
-this project is incomplete.
-
 
 
 
@@ -33,22 +29,24 @@ to flash the update.
 
 Included exectables from:
   
-  Splitupdate --- https://github.com/marcominetti/split_updata.pl
+  Splitupdate --- https://github.com/marcominetti/split_updata.pl  ##extract update.app
   
-  perl ----       http://strawberryperl.com/releases.html   64bit 5.26.2.1 portable
+  perl ----       http://strawberryperl.com/releases.html   64bit 5.26.2.1 portable  ##To run the splitupdate
   
-  cecho ---       https://github.com/lordmulder/cecho
+  cecho ---       https://github.com/lordmulder/cecho  ##Script window Flashy colors
   
-  fciv ---        https://www.microsoft.com/en-us/download/details.aspx?id=11533
+  fciv ---        https://www.microsoft.com/en-us/download/details.aspx?id=11533 ##To verify file integrity
   
-  JREPL.BAT ---   https://github.com/aneeshdurg/JRepl
+  JREPL.BAT ---   https://github.com/aneeshdurg/JRepl ##multiple txt manipulation
   
-  unzip.exe  ---  http://gnuwin32.sourceforge.net/packages/unzip.htm
+  unzip.exe  ---  http://gnuwin32.sourceforge.net/packages/unzip.htm ##Updates and extraction
   
-  wget.exe  ---   http://gnuwin32.sourceforge.net/packages/wget.htm
+  wget.exe  ---   http://gnuwin32.sourceforge.net/packages/wget.htm ##USed for updates and downloads
   
-  xml.exe ---     http://xmlstar.sourceforge.net/
+  xml.exe ---     http://xmlstar.sourceforge.net/  ##Parses XML file
   
-  merge.bat  ---
+  merge.bat  ---  from examples found on SuperUser forum ##combines lists
   
-  xpath.bat  ---  https://github.com/npocmaka/batch.scripts/blob/master/hybrids/jscript/xpath.bat
+  xpath.bat  ---  https://github.com/npocmaka/batch.scripts/blob/master/hybrids/jscript/xpath.bat  ##Parses XML file
+
+  jqwin64.exe --- https://stedolan.github.io/jq/download/  ##Used to parse Json file list 
