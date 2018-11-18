@@ -1,7 +1,7 @@
 @echo off
 cls
 color 0e
-set ver=V-15
+set ver=V-17
 set downloaded=no
 title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
@@ -243,26 +243,24 @@ IF "%cust%" == "" (
 	GOTO:input )
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
 echo Downloading Info For %model%
-%~dp0bin\wget -O %~dp0filelist.txt http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model% 2> update-logs\download-log.txt
-call bin\jrepl "{" "\n{" /M /X /f "%~dp0filelist.txt" /o -
-call bin\jrepl " " "" /M /X /f "%~dp0filelist.txt" /o -
-call bin\jrepl "\\" "" /M /X /f "%~dp0filelist.txt" /o -
-call bin\jrepl "\x22" "" /M /X /f "%~dp0filelist.txt" /o -
-::call bin\jrepl " , " " : " /M /X /f "%~dp0\filelist.txt" /o -
-for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0filelist.txt"') do echo %%a >> %~dp0mytext.txt
-for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0myText.txt"') do echo %%a >> %~dp0full-firmware.txt
-for /f "tokens=2 delims=:," %%a in ('findstr "changelog_link" "%~dp0full-firmware.txt"') do echo %%a >> %~dp0version-firmware.txt
-for /f "tokens=3 delims=," %%a in ('findstr "changelog_link" "%~dp0full-firmware.txt"') do echo %%a >> %~dp0dladdress-firmware.txt
-call bin\jrepl "changelog_link:" "" /M /X /f "%~dp0dladdress-firmware.txt" /o -
-findstr /n "^" %~dp0version-firmware.txt > %~dp0version-numbered.txt
-findstr /n "^" %~dp0dladdress-firmware.txt > %~dp0dladdress-numbered.txt
-call bin\jrepl " " "" /M /X /f "%~dp0dladdress-numbered.txt" /o -
-call bin\jrepl " " "" /M /X /f "%~dp0version-numbered.txt" /o -
-For /F %%A In ('Find /C "http"^<"%~dp0dladdress-firmware.txt"') Do (
+%~dp0bin\wget -O filelist.json http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model% 2> update-logs\download-log.txt
+call bin\jrepl ":\[" ":\n" /M /X /f "filelist.json" /o -
+call bin\jrepl "},{" "}\n{" /M /X /f "filelist.json" /o -
+call bin\jrepl "\]}" "" /M /X /f "filelist.json" /o -
+for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "filelist.json"') do echo %%a >> mytext.json
+for /f "tokens=* delims=" %%a in ('findstr "%cust%" "myText.json"') do echo %%a >> full-firmware.json
+for /f "tokens=* delims=" %%a in ('bin\jq-win64.exe .firmware full-firmware.json') do echo %%a >> versions.txt
+for /f "tokens=* delims=" %%a in ('bin\jq-win64.exe .changelog_link full-firmware.json') do echo %%a >> dl-address.txt
+call %~dp0bin\merge.bat versions.txt dl-address.txt new-merge.txt
+findstr /n "^" new-merge.txt > numbered-merge.txt
+call bin\jrepl "\x22  \x22" "=" /M /X /f "numbered-merge.txt" /o -
+call bin\jrepl "\x22" "" /M /X /f "numbered-merge.txt" /o -
+call bin\jrepl " " "" /M /X /f "numbered-merge.txt" /o -
+For /F %%A In ('Find /C "http"^<"numbered-merge.txt"') Do (
     Set "mlc=%%A" )
-find "changelog.xml" /I "%~dp0dladdress-firmware.txt" > nul
+find "changelog.xml" /I "numbered-merge.txt" > nul
 if errorlevel 1 (
-    echo dladdress.txt MISSING information
+    echo numbered-merge.txt MISSING information
 	echo Going To Start Again
 	pause
 	GOTO:start
@@ -277,11 +275,11 @@ if errorlevel 1 (
 	::Load up our menu selections
 cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
-	for /f "tokens=*" %%A in ('"findstr ":" "%~dp0version-numbered.txt""') do echo.  %%A
+	for /f "tokens=1 delims=\=" %%A in ('"findstr ":" "numbered-merge.txt""') do echo.  %%A
 	set choice=
 	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:FINISH
 	echo download choice = %choice%
-	for /f "tokens=1,* delims=:" %%A in ('"findstr ":" "%~dp0dladdress-numbered.txt""') do echo %%A >> %~dp0good-choice.txt
+	for /f "tokens=1,* delims=:" %%A in ('"findstr ":" "numbered-merge.txt""') do echo %%A >> %~dp0good-choice.txt
 	find "%choice%" "%~dp0good-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
@@ -292,8 +290,8 @@ if errorlevel 1 (
 ) else (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
-for /f "tokens=2,3,4 delims=:" %%A in ('"findstr /b /c:"%choice%:" "%~dp0dladdress-numbered.txt""') do set dladress=%%A:%%B:%%C
-for /f "tokens=2 delims=:" %%A in ('"findstr /b /c:"%choice%:" "%~dp0version-numbered.txt""') do set newversion=%%A
+for /f "tokens=2 delims=\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set dladress=%%A
+for /f "tokens=1 delims=\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 echo Downloading Filelist
 %~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt 2> update-logs\filelist-download-log.txt
@@ -308,7 +306,7 @@ if errorlevel 1 (
 )
 for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//dpath" %~dp0UPDATE_list.txt') do echo %%a >> %~dp0dpath.txt
 for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//md5" %~dp0UPDATE_list.txt') do echo %%a >> %~dp0md5.txt
-call %~dp0bin\merge.bat
+call %~dp0bin\merge.bat %~dp0dpath.txt %~dp0md5.txt %~dp0merged-file.txt
 for /f "tokens=* delims=" %%# in ('%~dp0bin\xpath.bat "%~dp0UPDATE_list.txt" "//@package"') do echo %%# >> %~dp0file.txt
 echo /> %~dp0subpath.txt
 for /f "tokens=* delims=" %%# in ('%~dp0bin\xpath.bat "%~dp0UPDATE_list.txt" "//@subpath"') do echo %%#/>> %~dp0subpath.txt
@@ -481,6 +479,7 @@ GOTO:Finalmess
 echo EXITED BEFORE DOWNLOADING )
 pause
 del "%~dp0*.txt"
+del "%~dp0*.json"
 exit
 
 :Finalmess
@@ -494,4 +493,5 @@ cecho   * {0E}      {#}                     *{\n}
 echo   ***************************************************
 pause
 del "%~dp0*.txt"
+del "%~dp0*.json"
 exit
