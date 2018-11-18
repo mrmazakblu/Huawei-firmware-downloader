@@ -10,6 +10,7 @@ setlocal EnableDelayedExpansion
 cls
 IF EXIST "bin" SET PATH=%PATH%;"bin"
 if exist %~dp0*.txt del %~dp0*.txt
+if exist %~dp0*.json del %~dp0*.json
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
 IF EXIST "%~dp0update-logs" del "%~dp0update-logs" /Q
 IF NOT EXIST "%~dp0update-logs" mkdir "%~dp0update-logs"
@@ -291,7 +292,7 @@ if errorlevel 1 (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
 for /f "tokens=2 delims=\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set dladress=%%A
-for /f "tokens=1 delims=\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set newversion=%%A
+for /f "tokens=2 delims=:" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 echo Downloading Filelist
 %~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt 2> update-logs\filelist-download-log.txt
@@ -332,11 +333,11 @@ CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO:test
 IF ERRORLEVEL 1 GOTO:continue
 :continue
-echo DOWNLOADING %link1%%file1%
+echo DOWNLOADING %base%%link1%%file1%
 %~dp0bin\wget -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1:.zip=-download-log.txt%"
-echo DOWNLOADING %link2%%file2%
+echo DOWNLOADING %base%%link2%%file2%
 %~dp0bin\wget -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2:.zip=-download-log.txt%"
-echo DOWNLOADING %link3%%file3%
+echo DOWNLOADING %base%%link3%%file3%
 %~dp0bin\wget -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3:.zip=-download-log.txt%"
 set downloaded="yes"
 :test
