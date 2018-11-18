@@ -257,15 +257,7 @@ call bin\jrepl "changelog_link:" "" /M /X /f "%~dp0dladdress-firmware.txt" /o -
 findstr /n "^" %~dp0version-firmware.txt > %~dp0version-numbered.txt
 findstr /n "^" %~dp0dladdress-firmware.txt > %~dp0dladdress-numbered.txt
 call bin\jrepl " " "" /M /X /f "%~dp0dladdress-numbered.txt" /o -
-::setlocal EnableDelayedExpansion
-::set x=1.
-::for /f "delims=" %%a in (%~dp0version-firmware.txt) do (
-::  echo Line_!x! %%a >> %~dp0version-numbered.txt
-::  set /a x=!x!+1 )
-::set x=1.
-::for /f "delims=" %%a in (%~dp0dladdress-firmware.txt) do (
-::  echo Line_!x! %%a >> %~dp0dladdress-numbered.txt
-::  set /a x=!x!+1 )
+call bin\jrepl " " "" /M /X /f "%~dp0version-numbered.txt" /o -
 For /F %%A In ('Find /C "http"^<"%~dp0dladdress-firmware.txt"') Do (
     Set "mlc=%%A" )
 find "changelog.xml" /I "%~dp0dladdress-firmware.txt" > nul
@@ -336,28 +328,27 @@ cecho   * {0B}       NEW VERSION TO DOWNLOAD IS {#}              *{\n}
 cecho   * {0A}           %newversion% {#}         *{\n}
 cecho   * {0E}         Download 1=Yes 2=No{#}                    *{\n}
 echo   ***************************************************
-set save=%~dp0UPDATE\%model%-%cust%\%newversion%
-if not exist "%~dp0UPDATE\%model%-%cust%\%newversion%" mkdir %~dp0UPDATE\%model%-%cust%\%newversion%
+set save=%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%
 echo( 
 CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO:test
 IF ERRORLEVEL 1 GOTO:continue
 :continue
 echo DOWNLOADING %link1%%file1%
-%~dp0bin\wget -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1%-download-log.txt"
+%~dp0bin\wget -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1:.zip=-download-log.txt%"
 echo DOWNLOADING %link2%%file2%
-%~dp0bin\wget -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2%-download-log.txt"
+%~dp0bin\wget -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2:.zip=-download-log.txt%"
 echo DOWNLOADING %link3%%file3%
-%~dp0bin\wget -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3%-download-log.txt"
+%~dp0bin\wget -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3:.zip=-download-log.txt%"
 set downloaded="yes"
 :test
-echo Checking MD5 hashes %file1% %file2% %file3%
-set home=%~dp0bin
-cd %save%
-%home%\fciv.exe -add %save%\ -md5 > Updates-md5.txt
-::%~dp0bin\dd.exe if=%~dp0%file1:.zip=-md5.txt% of=%save%\%~dp0%file1:.zip=-md5.txt%
-cd %home%
-find "%md5-1%" /I "%save: =%\Updates-md5.txt" > nul
+echo Checking MD5 hashes %file1%
+bin\fciv.exe -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
+echo Checking MD5 hashes %file2%
+bin\fciv.exe -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt%
+echo Checking MD5 hashes %file3%
+bin\fciv.exe -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt%
+find "%md5-1%" /I "%save%\%file1:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
 	echo Something Has Gone Wrong
@@ -367,7 +358,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-1 ok continue
 )
-find "%md5-2%" /I "%save: =%\Updates-md5.txt" > nul
+find "%md5-2%" /I "%save%\%file2:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
 	echo Something Has Gone Wrong
@@ -377,7 +368,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-2 ok continue
 )
-find "%md5-3%" /I "%save: =%\Updates-md5.txt" > nul
+find "%md5-3%" /I "%save%\%file3:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
 	echo Something Has Gone Wrong
