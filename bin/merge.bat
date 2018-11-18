@@ -1,14 +1,17 @@
 @ECHO Off
 
-set file1=dpath.txt
-set file2=md5.txt
+::set file1=dpath.txt
+::set file2=md5.txt
+set "file1=%~1"
+set "file2=%~2"
+set "output=%~3"
 GOTO :Main
 
 :StartMerge
     SET /P _a=<%1
     SET /P _b=<%2
 
-    ECHO %_a% %_b% >> merged-file.txt
+    ECHO %_a% %_b% >> %output%
 
     DEL %1 %2
 
@@ -39,8 +42,8 @@ GOTO :Main
 
     IF %_LinesIn1% NEQ %_LinesIn2% (
         ECHO Cannot merge files; mismatched line count:-
-        ECHO   1.txt - %_LinesIn1% lines
-        ECHO   2.txt - %_LinesIn2% lines
+        ECHO   %file1% - %_LinesIn1% lines
+        ECHO   %file2% - %_LinesIn2% lines
 
         DEL _c*
 
