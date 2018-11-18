@@ -1,6 +1,0 @@
-//
-// File Checksum Integrity Verifier version 2.05.
-//
-761b389fbb23d82ed8cb650c6c44288c c:\users\mr\documents\github\firmware-downloader\huawei-firmware-downloader\update\bond-l24-c567\bond-l24ac567custc567d1b346(8.0.0.346)\update.zip
-352784b7d3742344e006907f4d3a3682 c:\users\mr\documents\github\firmware-downloader\huawei-firmware-downloader\update\bond-l24-c567\bond-l24ac567custc567d1b346(8.0.0.346)\update_data_full_public.zip
-34c49000065836d02569f8520ec8718c c:\users\mr\documents\github\firmware-downloader\huawei-firmware-downloader\update\bond-l24-c567\bond-l24ac567custc567d1b346(8.0.0.346)\update_full_BND-L24_hw_usa.zip
