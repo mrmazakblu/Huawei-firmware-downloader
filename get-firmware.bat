@@ -1,12 +1,14 @@
 @echo off
 cls
 color 0e
-set ver=V-11
+set ver=V-15
+set downloaded=no
 title 		Firmware Grabber %ver%
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
+setlocal EnableDelayedExpansion
 :start
 cls
-IF EXIST "%~dp0bin" SET PATH=%PATH%;"%~dp0\bin"
+IF EXIST "bin" SET PATH=%PATH%;"bin"
 if exist %~dp0*.txt del %~dp0*.txt
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
 IF EXIST "%~dp0update-logs" del "%~dp0update-logs" /Q
@@ -21,8 +23,8 @@ cecho   {0c}***************************************************{#}{\n}
 echo(
 echo( 
 CHOICE  /C 12 /M "   1=RUN  or   2=UPDATE"
-IF ERRORLEVEL 2 GOTO update
-IF ERRORLEVEL 1 GOTO run
+IF ERRORLEVEL 2 GOTO:update
+IF ERRORLEVEL 1 GOTO:run
 :update
 IF EXIST "%~dp0grabber-update" rd /s /q "%~dp0grabber-update" /Q
 IF NOT EXIST "%~dp0grabber-update" mkdir "%~dp0grabber-update"
@@ -55,8 +57,8 @@ cecho   {0c}***************************************************{#}{\n}
 echo(
 echo( 
 CHOICE  /C 12 /M "USE ADB TO GET MODEL NUMBER?   1=Yes  or   2=NO"
-IF ERRORLEVEL 2 GOTO input
-IF ERRORLEVEL 1 GOTO phone
+IF ERRORLEVEL 2 GOTO:input
+IF ERRORLEVEL 1 GOTO:phone
 :phone
 cls
 echo NEED TO CONNECT TO PHONE TO CHECK MODEL INFORMATION
@@ -82,68 +84,69 @@ echo   ***************************************************
 echo(
 echo( 
 CHOICE  /C 12 /M "CONTINUES WITH THESE SETTINGS  1=Yes  or   2=NO"
-IF ERRORLEVEL 2 GOTO input
-IF ERRORLEVEL 1 GOTO default
+IF ERRORLEVEL 2 GOTO:input
+IF ERRORLEVEL 1 GOTO:default
 :input
 cls
 set model=
 set cust=
 :deviceLOOP
 IF EXIST "%~dp0bin\Device-List.txt" del "%~dp0bin\Device-List.txt" /Q
-IF NOT EXIST "%~dp0bin\Device-List.txt" ( echo Line_1   ALP
-echo Line_2   BKL
-echo Line_3   BLA
-echo Line_4   BLN
-echo Line_5   BND   
-echo Line_6   CMR
-echo Line_7   DUK
-echo Line_8   FIG
-echo Line_9   LLD
-echo Line_10   LON
-echo Line_11   MHA
-echo Line_12   PRA
-echo Line_13   RNE
-echo Line_14   SHT
-echo Line_15   STF
-echo Line_16   VKY
-echo Line_17   VTR
-echo Line_18   WAS
+IF NOT EXIST "%~dp0bin\Device-List.txt" ( echo Line_1.   ALP
+echo Line_2.   BKL
+echo Line_3.   BLA
+echo Line_4.   BLN
+echo Line_5.   BND   
+echo Line_6.   CMR
+echo Line_7.   DUK
+echo Line_8.   FIG
+echo Line_9.   LLD
+echo Line_10.   LON
+echo Line_11.   MHA
+echo Line_12.   PRA
+echo Line_13.   RNE
+echo Line_14.   SHT
+echo Line_15.   STF
+echo Line_16.   VKY
+echo Line_17.   VTR
+echo Line_18.   WAS
+echo Line_19.   BOND
 echo Line_M   Other Manual Entry
 echo( )  > %~dp0bin\Device-List.txt
 IF EXIST "%~dp0bin\model-List.txt" del "%~dp0bin\model-List.txt" /Q
-IF NOT EXIST "%~dp0bin\model-List.txt" ( echo Line_1   AL00
-echo Line_2   AL09
-echo Line_3   AL10
-echo Line_4   AL19
-echo Line_5   L00  
-echo Line_6   L01
-echo Line_7   L02
-echo Line_8   L03
-echo Line_9   L09
-echo Line_10   L21
-echo Line_11   L22
-echo Line_12   L23
-echo Line_13   L24
-echo Line_14   L29
-echo Line_15   L31
-echo Line_16   L34
-echo Line_17   LA1
-echo Line_18   LX1
-echo Line_19   LX2
-echo Line_20   LX3
-echo Line_21   TL00
-echo Line_22   TL10
-echo Line_23   W09
-echo Line_24   W19
+IF NOT EXIST "%~dp0bin\model-List.txt" ( echo Line_1.   AL00
+echo Line_2.   AL09
+echo Line_3.   AL10
+echo Line_4.   AL19
+echo Line_5.   L00  
+echo Line_6.   L01
+echo Line_7.   L02
+echo Line_8.   L03
+echo Line_9.   L09
+echo Line_10.   L21
+echo Line_11.   L22
+echo Line_12.   L23
+echo Line_13.   L24
+echo Line_14.   L29
+echo Line_15.   L31
+echo Line_16.   L34
+echo Line_17.   LA1
+echo Line_18.   LX1
+echo Line_19.   LX2
+echo Line_20.   LX3
+echo Line_21.   TL00
+echo Line_22.   TL10
+echo Line_23.   W09
+echo Line_24.   W19
 echo Line_M   Other Manual Entry
 echo( )  > %~dp0bin\model-List.txt
 IF EXIST "%~dp0bin\Region-List.txt" del "%~dp0bin\Region-List.txt" /Q
-IF NOT EXIST "%~dp0bin\Region-List.txt" ( echo Line_1   C432 Europe
-echo Line_2   C185 Middle East
-echo Line_3   C10 Russia
-echo Line_4   C675 India
-echo Line_5   C00 China
-echo Line_6   C567 USA
+IF NOT EXIST "%~dp0bin\Region-List.txt" ( echo Line_1.   C432 Europe
+echo Line_2.   C185 Middle East
+echo Line_3.   C10 Russia
+echo Line_4.   C675 India
+echo Line_5.   C00 China
+echo Line_6.   C567 USA
 echo Line_M   Other Manual Entry
 echo( )  > %~dp0bin\Region-List.txt
 :deviceLOOP
@@ -154,22 +157,22 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
 	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Device-List.txt""') do echo.  %%A
 	set choice=
-	echo.&set /p choice= TYPE LINE NUMBER OF DEVICE CODE or hit ENTER to exit: ||GOTO:end
+	echo.&set /p choice= TYPE LINE NUMBER OF DEVICE CODE or hit ENTER to exit: ||GOTO:FINISH
 	echo download choice = %choice%
-IF %choice% == m ( goto other )
-IF %choice% == M ( goto other )
+IF %choice% == m ( GOTO:other )
+IF %choice% == M ( GOTO:other )
 for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Device-List.txt""') do echo %%A >> %~dp0device-choice.txt
-	find "%choice%" "%~dp0device-choice.txt" > nul
+	find "%choice%." "%~dp0device-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
 	echo Type in only the Number from Line_*
 	pause
 	cls
-	goto deviceLOOP
+	GOTO:deviceLOOP
 ) else (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
-for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Device-List.txt""') do set   part-A=%%A
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%." "%~dp0bin\Device-List.txt""') do set   part-A=%%A
 :modelLOOP
 color 0A
 cls
@@ -178,22 +181,22 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
 	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\model-List.txt""') do echo.  %%A
 	set choice=
-	echo.&set /p choice= TYPE LINE NUMBER OF MODEL CODE or hit ENTER to exit: ||GOTO:end
+	echo.&set /p choice= TYPE LINE NUMBER OF MODEL CODE or hit ENTER to exit: ||GOTO:FINISH
 	echo download choice = %choice%
-IF %choice% == m ( goto other )
-IF %choice% == M ( goto other )
+IF %choice% == m ( GOTO:other )
+IF %choice% == M ( GOTO:other )
 for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\model-List.txt""') do echo %%A >> %~dp0model-choice.txt
-	find "%choice%" "%~dp0model-choice.txt" > nul
+	find "%choice%." "%~dp0model-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
 	echo Type in only the Number from Line_*
 	pause
 	cls
-	goto modelLOOP
+	GOTO:modelLOOP
 ) else (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
-for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\model-List.txt""') do set   part-B=%%A
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%." "%~dp0bin\model-List.txt""') do set   part-B=%%A
 set model=%part-A%-%part-B%
 :regionLOOp
 color 0A
@@ -203,27 +206,27 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
 	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Region-List.txt""') do echo.  %%A
 	set choice=
-	echo.&set /p choice= TYPE LINE NUMBER OF REGION CODE or hit ENTER to exit: ||GOTO:end
+	echo.&set /p choice= TYPE LINE NUMBER OF REGION CODE or hit ENTER to exit: ||GOTO:FINISH
 	echo download choice = %choice%
-IF %choice% == m ( goto other )
-IF %choice% == M ( goto other )
+IF %choice% == m ( GOTO:other )
+IF %choice% == M ( GOTO:other )
 for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Region-List.txt""') do echo %%A >> %~dp0region-choice.txt
-	find "%choice%" "%~dp0region-choice.txt" > nul
+	find "%choice%." "%~dp0region-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
 	echo Type in only the Number from Line_*
 	pause
 	cls
-	goto regionLOOP
+	GOTO:regionLOOP
 ) else (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
-for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0bin\Region-List.txt""') do set cust=%%A
-goto default
+for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%." "%~dp0bin\Region-List.txt""') do set cust=%%A
+GOTO:default
 :other
 SET /P model="What model would you like to Download for? Ex "BND-L21"  =  "
 SET /P cust="What region code would you like to Download for? Ex "C10"  =  "
-goto default
+GOTO:default
 :default
 echo SELECTION IS SET TO
 echo %model% %cust%
@@ -232,36 +235,37 @@ IF "%model%" == "" (
 	echo MODEL IS BLANK
 	echo CANNOT CONTINUE WITHOUT MODEL
 	pause
-	goto input )
+	GOTO:input )
 IF "%cust%" == "" (
 	echo CUST - REGION IS BLANK
 	echo CANNOT CONTINUE WITHOUT CUST
 	pause
-	goto input )
+	GOTO:input )
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
 echo Downloading Info For %model%
 %~dp0bin\wget -O %~dp0filelist.txt http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model% 2> update-logs\download-log.txt
-call bin\jrepl "{" "\n{" /M /X /f "%~dp0\filelist.txt" /o -
-call bin\jrepl " , " " : " /M /X /f "%~dp0\filelist.txt" /o -
-setlocal EnableDelayedExpansion
-for /F "delims=" %%A in ('type "%~dp0\filelist.txt"') do (
-  set row=%%A
-  set row=!row:"=!
-  echo.!row!>> "%~dp0\myText.txt"
-)
-for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0myText.txt"') do echo %%a >> %~dp0cust-firmware.txt
-for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0cust-firmware.txt"') do echo %%a >> %~dp0full-firmware.txt
-for /f "tokens=6,7,8 delims=:" %%a in ('findstr "changelog_link" "%~dp0full-firmware.txt"') do echo %%a:%%b:%%c >> %~dp0dladdress-firmware.txt
-for /f "tokens=2 delims=:" %%a in ('findstr "changelog_link" "%~dp0full-firmware.txt"') do echo %%a >> %~dp0version-firmware.txt
-call bin\jrepl " " "" /M /X /f "%~dp0dladdress-firmware.txt" /o -
-set x=1
-for /f "delims=" %%a in (%~dp0version-firmware.txt) do (
-  echo Line_!x! %%a >> %~dp0version-numbered.txt
-  set /a x=!x!+1 )
-set x=1
-for /f "delims=" %%a in (%~dp0dladdress-firmware.txt) do (
-  echo Line_!x! %%a >> %~dp0dladdress-numbered.txt
-  set /a x=!x!+1 )
+call bin\jrepl "{" "\n{" /M /X /f "%~dp0filelist.txt" /o -
+call bin\jrepl " " "" /M /X /f "%~dp0filelist.txt" /o -
+call bin\jrepl "\\" "" /M /X /f "%~dp0filelist.txt" /o -
+call bin\jrepl "\x22" "" /M /X /f "%~dp0filelist.txt" /o -
+::call bin\jrepl " , " " : " /M /X /f "%~dp0\filelist.txt" /o -
+for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0filelist.txt"') do echo %%a >> %~dp0mytext.txt
+for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0myText.txt"') do echo %%a >> %~dp0full-firmware.txt
+for /f "tokens=2 delims=:," %%a in ('findstr "changelog_link" "%~dp0full-firmware.txt"') do echo %%a >> %~dp0version-firmware.txt
+for /f "tokens=3 delims=," %%a in ('findstr "changelog_link" "%~dp0full-firmware.txt"') do echo %%a >> %~dp0dladdress-firmware.txt
+call bin\jrepl "changelog_link:" "" /M /X /f "%~dp0dladdress-firmware.txt" /o -
+findstr /n "^" %~dp0version-firmware.txt > %~dp0version-numbered.txt
+findstr /n "^" %~dp0dladdress-firmware.txt > %~dp0dladdress-numbered.txt
+call bin\jrepl " " "" /M /X /f "%~dp0dladdress-numbered.txt" /o -
+::setlocal EnableDelayedExpansion
+::set x=1.
+::for /f "delims=" %%a in (%~dp0version-firmware.txt) do (
+::  echo Line_!x! %%a >> %~dp0version-numbered.txt
+::  set /a x=!x!+1 )
+::set x=1.
+::for /f "delims=" %%a in (%~dp0dladdress-firmware.txt) do (
+::  echo Line_!x! %%a >> %~dp0dladdress-numbered.txt
+::  set /a x=!x!+1 )
 For /F %%A In ('Find /C "http"^<"%~dp0dladdress-firmware.txt"') Do (
     Set "mlc=%%A" )
 find "changelog.xml" /I "%~dp0dladdress-firmware.txt" > nul
@@ -269,7 +273,7 @@ if errorlevel 1 (
     echo dladdress.txt MISSING information
 	echo Going To Start Again
 	pause
-	goto start
+	GOTO:start
 ) else (
 	cls
 	cecho  {0c} ***************************************************{#}{\n}
@@ -281,23 +285,23 @@ if errorlevel 1 (
 	::Load up our menu selections
 cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
-	for /f "tokens=* delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0version-numbered.txt""') do echo.  %%A
+	for /f "tokens=*" %%A in ('"findstr ":" "%~dp0version-numbered.txt""') do echo.  %%A
 	set choice=
-	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:end
+	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:FINISH
 	echo download choice = %choice%
-	for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0dladdress-numbered.txt""') do echo %%A >> %~dp0good-choice.txt
+	for /f "tokens=1,* delims=:" %%A in ('"findstr ":" "%~dp0dladdress-numbered.txt""') do echo %%A >> %~dp0good-choice.txt
 	find "%choice%" "%~dp0good-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
-	echo Type in only the Number from Line_*
+	echo Type in only the Number
 	pause
 	cls
-	goto menuLOOP
+	GOTO:menuLOOP
 ) else (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
-for /f "tokens=2" %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0dladdress-numbered.txt""') do set   dladress=%%A
-for /f "tokens=2 delims=, " %%A in ('"findstr /b /c:"Line_%choice%" "%~dp0version-numbered.txt""') do set newversion=%%A
+for /f "tokens=2,3,4 delims=:" %%A in ('"findstr /b /c:"%choice%:" "%~dp0dladdress-numbered.txt""') do set dladress=%%A:%%B:%%C
+for /f "tokens=2 delims=:" %%A in ('"findstr /b /c:"%choice%:" "%~dp0version-numbered.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 echo Downloading Filelist
 %~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt 2> update-logs\filelist-download-log.txt
@@ -306,7 +310,7 @@ if errorlevel 1 (
     echo UPDATE_list.txt MISSING information
 	echo Going To Start Again
 	pause
-	goto start
+	GOTO:start
 ) else (
 	echo UPDATE_list.txt ok continue
 )
@@ -332,25 +336,24 @@ cecho   * {0B}       NEW VERSION TO DOWNLOAD IS {#}              *{\n}
 cecho   * {0A}           %newversion% {#}         *{\n}
 cecho   * {0E}         Download 1=Yes 2=No{#}                    *{\n}
 echo   ***************************************************
-set save=%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%
+set save=%~dp0UPDATE\%model%-%cust%\%newversion%
+if not exist "%~dp0UPDATE\%model%-%cust%\%newversion%" mkdir %~dp0UPDATE\%model%-%cust%\%newversion%
 echo( 
 CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
-IF ERRORLEVEL 2 GOTO test
-IF ERRORLEVEL 1 GOTO continue
+IF ERRORLEVEL 2 GOTO:test
+IF ERRORLEVEL 1 GOTO:continue
 :continue
 echo DOWNLOADING %link1%%file1%
-%~dp0bin\wget -P %save% %base%%link1%%file1% 2> update-logs\%link1%%file1%-download-log.txt
+%~dp0bin\wget -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1%-download-log.txt"
 echo DOWNLOADING %link2%%file2%
-%~dp0bin\wget -P %save% %base%%link2%%file2% 2> update-logs\%link2%%file2%-download-log.txt
+%~dp0bin\wget -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2%-download-log.txt"
 echo DOWNLOADING %link3%%file3%
-%~dp0bin\wget -P %save% %base%%link3%%file3% 2> update-logs\%link3%%file3%-download-log.txt
+%~dp0bin\wget -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3%-download-log.txt"
+set downloaded="yes"
 :test
-echo Checking MD5 hashes %file1%
-%~dp0bin\fciv.exe -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
-echo Checking MD5 hashes %file2%
-%~dp0bin\fciv.exe -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt%
-echo Checking MD5 hashes %file3%
-%~dp0bin\fciv.exe -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt%
+echo Checking MD5 hashes %file1% %file2% %file3%
+%~dp0bin\fciv.exe -add %save%\ -md5 > %save%\Updates-md5.txt%
+::%~dp0bin\dd.exe if=%~dp0%file1:.zip=-md5.txt% of=%save%\%~dp0%file1:.zip=-md5.txt%
 find "%md5-1%" /I "%save%\%file1:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
@@ -391,9 +394,10 @@ cecho   * {0E}                             {#}              *{\n}
 echo   ***************************************************
 echo( 
 CHOICE  /C 12 /M "EXTRACT IMAGES Now 1=Yes  or 2=NO"
-IF ERRORLEVEL 2 GOTO transfer-sdcard
-IF ERRORLEVEL 1 GOTO extract
+IF ERRORLEVEL 2 GOTO:transfer
+IF ERRORLEVEL 1 GOTO:extract
 echo(
+
 :extract
 set working=%~dp0
 cd %save%
@@ -404,7 +408,8 @@ cd %save%
 %working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update2\UPDATE.APP
 %working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update3\UPDATE.APP
 cd %working%
-:transfer-sdcard
+
+:transfer
 for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
 echo %recovery%
 IF "%recovery%" == "bootdevice" (
@@ -426,11 +431,11 @@ cecho   * {0E}         Move To SDCARD  1=Yes 2=No{#}                     *{\n}
 echo   ***************************************************
 echo( 
 CHOICE  /C 12 /M "Move Download to SDCARD Now 1=Yes  or 2=NO"
-IF ERRORLEVEL 2 GOTO donotmove
-IF ERRORLEVEL 1 GOTO move
+IF ERRORLEVEL 2 GOTO:donotmove
+IF ERRORLEVEL 1 GOTO:move
 echo(
 :donotmove
-goto end
+GOTO:FINISH
 :move
 adb shell mkdir /mnt/ext_sdcard/%HWOTA%
 :move_1
@@ -450,8 +455,7 @@ if errorlevel 1 (
 	pause
 	GOTO:move_1
 ) else (
-	echo md5-1 ok continue
-)
+	echo md5-1 ok continue )
 find "%md5-2%" /I "%~dp0moved-updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
@@ -462,8 +466,7 @@ if errorlevel 1 (
 	pause
 	GOTO:move_2
 ) else (
-	echo md5-2 ok continue
-)
+	echo md5-2 ok continue )
 find "%md5-3%" /I "%~dp0moved-updates-md5.txt" > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
@@ -474,17 +477,27 @@ if errorlevel 1 (
 	pause
 	GOTO:move_3
 ) else (
-	echo md5-3 ok continue
-)
-:end
+	echo md5-3 ok continue )
+:FINISH
 :EOF
-echo(
-echo   *************************************************************************************
-cecho   *{0E}UPDATE FILES HAVE BEEN SAVED TO UPDATE FOLDR ADDED TO YOUR Desktop{#}      *{\n}
-cecho   *{0E}%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%{#}            *{\n}
-cecho   *{0E}Next line cleans the extra files created during download{#}                *{\n}
-cecho   *{0E}If you do not want all txt files removed, change the last line on script{#}*{\n}
-echo   *************************************************************************************
+echo.
+if %downloaded%=="yes" (
+GOTO:Finalmess
+) else (
+echo EXITED BEFORE DOWNLOADING )
+pause
+del "%~dp0*.txt"
+exit
+
+:Finalmess
+echo. 
+echo   ***************************************************
+cecho   * {0B}UPDATE FILES HAVE BEEN SAVED TO UPDATE FOLDR ADDED TO YOUR Desktop{#}      *{\n}
+cecho   * {0E}%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%       {#}         *{\n}
+cecho   * {0B}Next line cleans the extra files created during download       {#}         *{\n}
+cecho   * {0A}If you do not want all txt files removed, change the last line on script{#}*{\n}
+cecho   * {0E}      {#}                     *{\n}
+echo   ***************************************************
 pause
 del "%~dp0*.txt"
 exit
