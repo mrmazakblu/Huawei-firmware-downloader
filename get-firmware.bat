@@ -292,7 +292,7 @@ if errorlevel 1 (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
 for /f "tokens=2 delims=\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set dladress=%%A
-for /f "tokens=2 delims=:" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set newversion=%%A
+for /f "tokens=2 delims=:,\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 echo Downloading Filelist
 %~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt 2> update-logs\filelist-download-log.txt
