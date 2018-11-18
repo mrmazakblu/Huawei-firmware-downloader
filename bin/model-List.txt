@@ -1,0 +1,26 @@
+Line_1.   AL00
+Line_2.   AL09
+Line_3.   AL10
+Line_4.   AL19
+Line_5.   L00  
+Line_6.   L01
+Line_7.   L02
+Line_8.   L03
+Line_9.   L09
+Line_10.   L21
+Line_11.   L22
+Line_12.   L23
+Line_13.   L24
+Line_14.   L29
+Line_15.   L31
+Line_16.   L34
+Line_17.   LA1
+Line_18.   LX1
+Line_19.   LX2
+Line_20.   LX3
+Line_21.   TL00
+Line_22.   TL10
+Line_23.   W09
+Line_24.   W19
+Line_M   Other Manual Entry
+ 

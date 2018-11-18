@@ -1,11 +1,21 @@
-Line_1   BND-L21 C432 Europe
-Line_2   BND-L21 C185 Middle East
-Line_3   BND-L21 C10 Russia
-Line_4   BND-AL10 C675 India
-Line_5   BND-AL10 C00 China
-Line_6   BND-TL10 C00 China
-Line_7   BND-L24 C567 USA
-Line_8   BND-L34 C567 USA
-Line_**   BND-L22 See Al10-C675
+Line_1.   ALP
+Line_2.   BKL
+Line_3.   BLA
+Line_4.   BLN
+Line_5.   BND   
+Line_6.   CMR
+Line_7.   DUK
+Line_8.   FIG
+Line_9.   LLD
+Line_10.   LON
+Line_11.   MHA
+Line_12.   PRA
+Line_13.   RNE
+Line_14.   SHT
+Line_15.   STF
+Line_16.   VKY
+Line_17.   VTR
+Line_18.   WAS
+Line_19.   BOND
 Line_M   Other Manual Entry
  
