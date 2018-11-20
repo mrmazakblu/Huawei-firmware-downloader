@@ -1,6 +1,9 @@
 @echo off
 cls
 color 0e
+echo CHECKING FOR NEWEST VERSION
+::%~dp0bin\wget -O %~dp0bin\current-version.txt http: 2> nul
+< %~dp0bin\current-version.txt ( set /P "newver=" & set /P "newdate=" )
 set ver=V-17
 set downloaded=no
 title 		Firmware Grabber %ver%
@@ -18,6 +21,7 @@ cls
 echo(
 echo(
 cecho  {0c} ***************************************************{#}{\n}
+cecho   *  {0E}             Newest Version IS %newver%  %newdate%{#}      *{\n}
 cecho   *  {0E}   DO YOU WANT TO DOWNLOAD LATEST SCRIPT {#}      *{\n}
 cecho   *  {06}   OR RUN CURRENT VERSION??  %ver%           {#}       *{\n}
 cecho   {0c}***************************************************{#}{\n}
