@@ -253,8 +253,8 @@ call "%~dp0bin\jrepl" "},{" "}\n{" /M /X /f "%~dp0filelist.json" /o -
 call "%~dp0bin\jrepl" "\]}" "" /M /X /f "%~dp0filelist.json" /o -
 for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0filelist.json"') do echo %%a >> "%~dp0mytext.json"
 for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0myText.json"') do echo %%a >> "%~dp0full-firmware.json"
-for /f "tokens=* delims=" %%a in ('"%~dp0bin\jq-win64.exe" .firmware "%~dp0full-firmware.json"') do echo %%a >> "%~dp0versions.txt"
-for /f "tokens=* delims=" %%a in ('"%~dp0bin\jq-win64.exe" .changelog_link "%~dp0full-firmware.json"') do echo %%a >> "%~dp0dl-address.txt"
+for /f "tokens=* delims=" %%a in ('""%~dp0bin\jq-win64.exe" .firmware "%~dp0full-firmware.json""') do echo %%a >> "%~dp0versions.txt"
+for /f "tokens=* delims=" %%a in ('bin\jq-win64.exe .changelog_link full-firmware.json') do echo %%a >> "%~dp0dl-address.txt"
 call "%~dp0bin\merge.bat" "%~dp0versions.txt" "%~dp0dl-address.txt" "%~dp0new-merge.txt"
 findstr /n "^" "%~dp0new-merge.txt" > "%~dp0numbered-merge.txt"
 call "%~dp0bin\jrepl" "\x22  \x22" "=" /M /X /f "%~dp0numbered-merge.txt" /o -
@@ -308,17 +308,17 @@ if errorlevel 1 (
 ) else (
 	echo UPDATE_list.txt ok continue
 )
-for /f %%a in ('"%~dp0bin\XML.EXE" sel -t -v "//dpath" "%~dp0UPDATE_list.txt"') do echo %%a >> "%~dp0dpath.txt"
-for /f %%a in ('"%~dp0bin\XML.EXE" sel -t -v "//md5" "%~dp0UPDATE_list.txt"') do echo %%a >> "%~dp0md5.txt"
+for /f %%a in ('""%~dp0bin\XML.EXE" sel -t -v "//dpath" "%~dp0UPDATE_list.txt""') do echo %%a >> "%~dp0dpath.txt"
+for /f %%a in ('""%~dp0bin\XML.EXE" sel -t -v "//md5" "%~dp0UPDATE_list.txt""') do echo %%a >> "%~dp0md5.txt"
 call "%~dp0bin\merge.bat" "%~dp0dpath.txt" "%~dp0md5.txt" "%~dp0merged-file.txt"
-for /f "tokens=* delims=" %%# in ('"%~dp0bin\xpath.bat" "%~dp0UPDATE_list.txt" "//@package"') do echo %%# >> "%~dp0file.txt"
+for /f "tokens=* delims=" %%# in ('""%~dp0bin\xpath.bat" "%~dp0UPDATE_list.txt" "//@package""') do echo %%# >> "%~dp0file.txt"
 echo /> "%~dp0subpath.txt"
-for /f "tokens=* delims=" %%# in ('"%~dp0bin\xpath.bat" "%~dp0UPDATE_list.txt" "//@subpath"') do echo %%#/>> "%~dp0subpath.txt"
+for /f "tokens=* delims=" %%# in ('""%~dp0bin\xpath.bat" "%~dp0UPDATE_list.txt" "//@subpath""') do echo %%#/>> "%~dp0subpath.txt"
 < "%~dp0subpath.txt" ( set /P "link1=" & set /P "link2=" & set /P "link3=" )
 < "%~dp0file.txt" ( set /P "file1=" & set /P "file2=" & set /P "file3=" )
-for /f "tokens=2" %%i in ('findstr "%file1%" "%~dp0merged-file.txt"') do set md5-1=%%i
-for /f "tokens=2" %%i in ('findstr "%file2%" "%~dp0merged-file.txt"') do set md5-2=%%i
-for /f "tokens=2" %%i in ('findstr "%file3%" "%~dp0merged-file.txt"') do set md5-3=%%i
+for /f "tokens=2" %%i in ('"findstr "%file1%" "%~dp0merged-file.txt""') do set md5-1=%%i
+for /f "tokens=2" %%i in ('"findstr "%file2%" "%~dp0merged-file.txt""') do set md5-2=%%i
+for /f "tokens=2" %%i in ('"findstr "%file3%" "%~dp0merged-file.txt""') do set md5-3=%%i
 echo %base%%link1%%file1%  MD5- %md5-1%
 echo %base%%link2%%file2% MD5- %md5-2%
 echo %base%%link3%%file3% MD5- %md5-3%
@@ -350,7 +350,8 @@ echo Checking MD5 hashes %file2%
 "%~dp0bin\fciv.exe" -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt%
 echo Checking MD5 hashes %file3%
 "%~dp0bin\fciv.exe" -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt%
-find "%md5-1%" /I "%save%\%file1:.zip=-md5.txt%" > nul
+echo %md5-1% %md5-2% %md5-3%
+find "%md5-1%" /I %save%\%file1:.zip=-md5.txt% > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
 	echo Something Has Gone Wrong
@@ -360,7 +361,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-1 ok continue
 )
-find "%md5-2%" /I "%save%\%file2:.zip=-md5.txt%" > nul
+find "%md5-2%" /I %save%\%file2:.zip=-md5.txt% > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
 	echo Something Has Gone Wrong
@@ -370,7 +371,7 @@ if errorlevel 1 (
 ) else (
 	echo md5-2 ok continue
 )
-find "%md5-3%" /I "%save%\%file3:.zip=-md5.txt%" > nul
+find "%md5-3%" /I %save%\%file3:.zip=-md5.txt% > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
 	echo Something Has Gone Wrong
@@ -396,6 +397,9 @@ echo(
 
 :extract
 set working=%~dp0
+::set update1=%file1:.zip=%
+::set update2=%file2:.zip=%
+::set update3=%file3:.zip=%
 cd %save%
 "%working%bin\unzip.exe" -u %save%\%file1% -d %save%\update1\
 "%working%bin\unzip.exe" -u %save%\%file2% -d %save%\update2\
