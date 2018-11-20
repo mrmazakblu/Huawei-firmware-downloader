@@ -6,14 +6,14 @@ if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 setlocal EnableDelayedExpansion
 IF EXIST "bin" SET PATH=%PATH%;"bin"
 echo CHECKING FOR NEWEST VERSION
-%~dp0bin\wget -O %~dp0bin\current_version.txt https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/bin/current_version.txt
-< %~dp0bin\current_version.txt ( set /p "newver=" )
+"%~dp0bin\wget" -O "%~dp0bin\current_version.txt" https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/bin/current_version.txt
+< "%~dp0bin\current_version.txt" ( set /p "newver=" )
 set ver=V-17.1
 set downloaded=no
 :start
-if exist %~dp0*.txt del %~dp0*.txt
-if exist %~dp0*.json del %~dp0*.json
-if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
+if exist "%~dp0*.txt" del "%~dp0*.txt"
+if exist "%~dp0*.json" del "%~dp0*.json"
+if exist "%userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml" del  "%userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml"
 IF EXIST "%~dp0update-logs" del "%~dp0update-logs" /Q
 IF NOT EXIST "%~dp0update-logs" mkdir "%~dp0update-logs"
 cls
@@ -32,21 +32,21 @@ IF ERRORLEVEL 1 GOTO:run
 :update
 IF EXIST "%~dp0grabber-update" rd /s /q "%~dp0grabber-update" /Q
 IF NOT EXIST "%~dp0grabber-update" mkdir "%~dp0grabber-update"
-echo @echo off > %~dp0grabber-update\grabber-update.bat
-echo( >> %~dp0grabber-update\grabber-update.bat
-echo timeout 10 >> %~dp0grabber-update\grabber-update.bat
-echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" rd /s /q "%~dp0bin" /Q >> %~dp0grabber-update\grabber-update.bat
-echo IF EXIST %~dp0grabber-update\Huawei-firmware-downloader-master\bin echo d ^| xcopy /Y /E /H  %~dp0grabber-update\Huawei-firmware-downloader-master\bin %~dp0bin >> %~dp0grabber-update\grabber-update.bat
-echo echo f ^| xcopy /Y %~dp0get-firmware.bat %~dp0get-firmware.bak >> %~dp0grabber-update\grabber-update.bat
-echo IF EXIST %~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat echo f ^| xcopy /Y %~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
-echo timeout 5 >> %~dp0grabber-update\grabber-update.bat
-echo start %~dp0get-firmware.bat >> %~dp0grabber-update\grabber-update.bat
-echo timeout 2 >> %~dp0grabber-update\grabber-update.bat
-echo exit >> %~dp0grabber-update\grabber-update.bat
+echo @echo off > "%~dp0grabber-update\grabber-update.bat"
+echo( >> "%~dp0grabber-update\grabber-update.bat"
+echo timeout 10 >> "%~dp0grabber-update\grabber-update.bat"
+echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" rd /s /q "%~dp0bin" /Q >> "%~dp0grabber-update\grabber-update.bat"
+echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" echo d ^| xcopy /Y /E /H  %~dp0grabber-update\Huawei-firmware-downloader-master\bin %~dp0bin >> "%~dp0grabber-update\grabber-update.bat"
+echo echo f ^| xcopy /Y "%~dp0get-firmware.bat" "%~dp0get-firmware.bak" >> "%~dp0grabber-update\grabber-update.bat"
+echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat" echo f ^| xcopy /Y "%~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat" "%~dp0get-firmware.bat" >> "%~dp0grabber-update\grabber-update.bat"
+echo timeout 5 >> "%~dp0grabber-update\grabber-update.bat"
+echo start %~dp0get-firmware.bat >> "%~dp0grabber-update\grabber-update.bat"
+echo timeout 2 >> "%~dp0grabber-update\grabber-update.bat"
+echo exit >> "%~dp0grabber-update\grabber-update.bat"
 echo Downloading files from GitHub Repo
-bin\wget.exe -P %~dp0grabber-update\ https://github.com/mrmazakblu/Huawei-firmware-downloader/archive/master.zip 2> update-logs\tool-download-log.txt
-%~dp0bin\unzip.exe -u %~dp0grabber-update\master.zip -d %~dp0grabber-update\
-start %~dp0grabber-update\grabber-update.bat
+"%~dp0bin\wget.exe" -P "%~dp0grabber-update\" https://github.com/mrmazakblu/Huawei-firmware-downloader/archive/master.zip 2> "%~dp0update-logs\tool-download-log.txt"
+"%~dp0bin\unzip.exe" -u "%~dp0grabber-update\master.zip" -d "%~dp0grabber-update\"
+start "%~dp0grabber-update\grabber-update.bat"
 echo DONE WITH DOWNLAD. EXITING NOW TO UPDATE THE BIN AND THIS SCRIPT
 timeout 3
 exit
@@ -116,7 +116,7 @@ echo Line_17.   VTR
 echo Line_18.   WAS
 echo Line_19.   BOND
 echo Line_M   Other Manual Entry
-echo( )  > %~dp0bin\Device-List.txt
+echo( )  > "%~dp0bin\Device-List.txt"
 IF EXIST "%~dp0bin\model-List.txt" del "%~dp0bin\model-List.txt" /Q
 IF NOT EXIST "%~dp0bin\model-List.txt" ( echo Line_1.   AL00
 echo Line_2.   AL09
@@ -143,7 +143,7 @@ echo Line_22.   TL10
 echo Line_23.   W09
 echo Line_24.   W19
 echo Line_M   Other Manual Entry
-echo( )  > %~dp0bin\model-List.txt
+echo( )  > "%~dp0bin\model-List.txt"
 IF EXIST "%~dp0bin\Region-List.txt" del "%~dp0bin\Region-List.txt" /Q
 IF NOT EXIST "%~dp0bin\Region-List.txt" ( echo Line_1.   C432 Europe
 echo Line_2.   C185 Middle East
@@ -152,7 +152,7 @@ echo Line_4.   C675 India
 echo Line_5.   C00 China
 echo Line_6.   C567 USA
 echo Line_M   Other Manual Entry
-echo( )  > %~dp0bin\Region-List.txt
+echo( )  > "%~dp0bin\Region-List.txt"
 :deviceLOOP
 color 0A
 cls
@@ -165,7 +165,7 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo download choice = %choice%
 IF %choice% == m ( GOTO:other )
 IF %choice% == M ( GOTO:other )
-for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Device-List.txt""') do echo %%A >> %~dp0device-choice.txt
+for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Device-List.txt""') do echo %%A >> "%~dp0device-choice.txt"
 	find "%choice%." "%~dp0device-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
@@ -189,7 +189,7 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo download choice = %choice%
 IF %choice% == m ( GOTO:other )
 IF %choice% == M ( GOTO:other )
-for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\model-List.txt""') do echo %%A >> %~dp0model-choice.txt
+for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\model-List.txt""') do echo %%A >> "%~dp0model-choice.txt"
 	find "%choice%." "%~dp0model-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
@@ -214,7 +214,7 @@ cecho  {0c} ***************************************************{#}{\n}
 	echo download choice = %choice%
 IF %choice% == m ( GOTO:other )
 IF %choice% == M ( GOTO:other )
-for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Region-List.txt""') do echo %%A >> %~dp0region-choice.txt
+for /f "tokens=2 delims=_ " %%A in ('"findstr /b /c:"Line" "%~dp0bin\Region-List.txt""') do echo %%A >> "%~dp0region-choice.txt"
 	find "%choice%." "%~dp0region-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
@@ -245,24 +245,24 @@ IF "%cust%" == "" (
 	echo CANNOT CONTINUE WITHOUT CUST
 	pause
 	GOTO:input )
-if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
+if exist "%userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml" del  "%userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml"
 echo Downloading Info For %model%
-%~dp0bin\wget -O filelist.json http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model% 2> update-logs\download-log.txt
-call bin\jrepl ":\[" ":\n" /M /X /f "filelist.json" /o -
-call bin\jrepl "},{" "}\n{" /M /X /f "filelist.json" /o -
-call bin\jrepl "\]}" "" /M /X /f "filelist.json" /o -
-for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "filelist.json"') do echo %%a >> mytext.json
-for /f "tokens=* delims=" %%a in ('findstr "%cust%" "myText.json"') do echo %%a >> full-firmware.json
-for /f "tokens=* delims=" %%a in ('bin\jq-win64.exe .firmware full-firmware.json') do echo %%a >> versions.txt
-for /f "tokens=* delims=" %%a in ('bin\jq-win64.exe .changelog_link full-firmware.json') do echo %%a >> dl-address.txt
-call %~dp0bin\merge.bat versions.txt dl-address.txt new-merge.txt
-findstr /n "^" new-merge.txt > numbered-merge.txt
-call bin\jrepl "\x22  \x22" "=" /M /X /f "numbered-merge.txt" /o -
-call bin\jrepl "\x22" "" /M /X /f "numbered-merge.txt" /o -
-call bin\jrepl " " "" /M /X /f "numbered-merge.txt" /o -
-For /F %%A In ('Find /C "http"^<"numbered-merge.txt"') Do (
+"%~dp0bin\wget" -O "%~dp0filelist.json" http://pro-teammt.ru/projects/hwff/info/ff_get_data_android.php?model_json=%model% 2> "%~dp0update-logs\download-log.txt"
+call "%~dp0bin\jrepl" ":\[" ":\n" /M /X /f "%~dp0filelist.json" /o -
+call "%~dp0bin\jrepl" "},{" "}\n{" /M /X /f "%~dp0filelist.json" /o -
+call "%~dp0bin\jrepl" "\]}" "" /M /X /f "%~dp0filelist.json" /o -
+for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0filelist.json"') do echo %%a >> "%~dp0mytext.json"
+for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0myText.json"') do echo %%a >> "%~dp0full-firmware.json"
+for /f "tokens=* delims=" %%a in ('"%~dp0bin\jq-win64.exe" .firmware "%~dp0full-firmware.json"') do echo %%a >> "%~dp0versions.txt"
+for /f "tokens=* delims=" %%a in ('"%~dp0bin\jq-win64.exe" .changelog_link "%~dp0full-firmware.json"') do echo %%a >> "%~dp0dl-address.txt"
+call "%~dp0bin\merge.bat" "%~dp0versions.txt" "%~dp0dl-address.txt" "%~dp0new-merge.txt"
+findstr /n "^" "%~dp0new-merge.txt" > "%~dp0numbered-merge.txt"
+call "%~dp0bin\jrepl" "\x22  \x22" "=" /M /X /f "%~dp0numbered-merge.txt" /o -
+call "%~dp0bin\jrepl" "\x22" "" /M /X /f "%~dp0numbered-merge.txt" /o -
+call "%~dp0bin\jrepl" " " "" /M /X /f "%~dp0numbered-merge.txt" /o -
+For /F %%A In ('Find /C "http"^<"%~dp0numbered-merge.txt"') Do (
     Set "mlc=%%A" )
-find "changelog.xml" /I "numbered-merge.txt" > nul
+find "changelog.xml" /I "%~dp0numbered-merge.txt" > nul
 if errorlevel 1 (
     echo numbered-merge.txt MISSING information
 	echo Going To Start Again
@@ -279,11 +279,11 @@ if errorlevel 1 (
 	::Load up our menu selections
 cecho  {0c} ***************************************************{#}{\n}
 	echo.--------------------------------------------------------------------------------
-	for /f "tokens=1 delims=\=" %%A in ('"findstr ":" "numbered-merge.txt""') do echo.  %%A
+	for /f "tokens=1 delims=\=" %%A in ('"findstr ":" "%~dp0numbered-merge.txt""') do echo.  %%A
 	set choice=
 	echo.&set /p choice= Please make a selection ONLY INPUT LINE NUMBER or hit ENTER to exit: ||GOTO:FINISH
 	echo download choice = %choice%
-	for /f "tokens=1,* delims=:" %%A in ('"findstr ":" "numbered-merge.txt""') do echo %%A >> %~dp0good-choice.txt
+	for /f "tokens=1,* delims=:" %%A in ('"findstr ":" "%~dp0numbered-merge.txt""') do echo %%A >> %~dp0good-choice.txt
 	find "%choice%" "%~dp0good-choice.txt" > nul
 if errorlevel 1 (
     echo Made Bad selection 
@@ -294,11 +294,11 @@ if errorlevel 1 (
 ) else (
 	echo APPLYING CHOICE AND CONTINUEING AFTER PRESS ANY BUTTON
 )
-for /f "tokens=2 delims=\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set dladress=%%A
-for /f "tokens=2 delims=:,\=" %%A in ('"findstr /b /c:"%choice%:" "numbered-merge.txt""') do set newversion=%%A
+for /f "tokens=2 delims=\=" %%A in ('"findstr /b /c:"%choice%:" "%~dp0numbered-merge.txt""') do set dladress=%%A
+for /f "tokens=2 delims=:,\=" %%A in ('"findstr /b /c:"%choice%:" "%~dp0numbered-merge.txt""') do set newversion=%%A
 set base=%dladress:changelog.xml=%
 echo Downloading Filelist
-%~dp0bin\wget "%base%filelist.xml" -O %~dp0UPDATE_list.txt 2> update-logs\filelist-download-log.txt
+"%~dp0bin\wget" "%base%filelist.xml" -O "%~dp0UPDATE_list.txt" 2> "%~dp0update-logs\filelist-download-log.txt"
 find "xml" /I "%~dp0UPDATE_list.txt" > nul
 if errorlevel 1 (
     echo UPDATE_list.txt MISSING information
@@ -308,14 +308,14 @@ if errorlevel 1 (
 ) else (
 	echo UPDATE_list.txt ok continue
 )
-for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//dpath" %~dp0UPDATE_list.txt') do echo %%a >> %~dp0dpath.txt
-for /f %%a in ('%~dp0bin\XML.EXE sel -t -v "//md5" %~dp0UPDATE_list.txt') do echo %%a >> %~dp0md5.txt
-call %~dp0bin\merge.bat %~dp0dpath.txt %~dp0md5.txt %~dp0merged-file.txt
-for /f "tokens=* delims=" %%# in ('%~dp0bin\xpath.bat "%~dp0UPDATE_list.txt" "//@package"') do echo %%# >> %~dp0file.txt
-echo /> %~dp0subpath.txt
-for /f "tokens=* delims=" %%# in ('%~dp0bin\xpath.bat "%~dp0UPDATE_list.txt" "//@subpath"') do echo %%#/>> %~dp0subpath.txt
-< %~dp0subpath.txt ( set /P "link1=" & set /P "link2=" & set /P "link3=" )
-< %~dp0file.txt ( set /P "file1=" & set /P "file2=" & set /P "file3=" )
+for /f %%a in ('"%~dp0bin\XML.EXE" sel -t -v "//dpath" "%~dp0UPDATE_list.txt"') do echo %%a >> "%~dp0dpath.txt"
+for /f %%a in ('"%~dp0bin\XML.EXE" sel -t -v "//md5" "%~dp0UPDATE_list.txt"') do echo %%a >> "%~dp0md5.txt"
+call "%~dp0bin\merge.bat" "%~dp0dpath.txt" "%~dp0md5.txt" "%~dp0merged-file.txt"
+for /f "tokens=* delims=" %%# in ('"%~dp0bin\xpath.bat" "%~dp0UPDATE_list.txt" "//@package"') do echo %%# >> "%~dp0file.txt"
+echo /> "%~dp0subpath.txt"
+for /f "tokens=* delims=" %%# in ('"%~dp0bin\xpath.bat" "%~dp0UPDATE_list.txt" "//@subpath"') do echo %%#/>> "%~dp0subpath.txt"
+< "%~dp0subpath.txt" ( set /P "link1=" & set /P "link2=" & set /P "link3=" )
+< "%~dp0file.txt" ( set /P "file1=" & set /P "file2=" & set /P "file3=" )
 for /f "tokens=2" %%i in ('findstr "%file1%" "%~dp0merged-file.txt"') do set md5-1=%%i
 for /f "tokens=2" %%i in ('findstr "%file2%" "%~dp0merged-file.txt"') do set md5-2=%%i
 for /f "tokens=2" %%i in ('findstr "%file3%" "%~dp0merged-file.txt"') do set md5-3=%%i
@@ -330,26 +330,26 @@ cecho   * {0B}       NEW VERSION TO DOWNLOAD IS {#}              *{\n}
 cecho   * {0A}           %newversion% {#}         *{\n}
 cecho   * {0E}         Download 1=Yes 2=No{#}                    *{\n}
 echo   ***************************************************
-set save=%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%
+set save="%userprofile%\Desktop\UPDATE\%model%-%cust%\%newversion%"
 echo( 
 CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO:test
 IF ERRORLEVEL 1 GOTO:continue
 :continue
 echo DOWNLOADING %base%%link1%%file1%
-%~dp0bin\wget -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1:.zip=-download-log.txt%"
+"%~dp0bin\wget" -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1:.zip=-download-log.txt%"
 echo DOWNLOADING %base%%link2%%file2%
-%~dp0bin\wget -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2:.zip=-download-log.txt%"
+"%~dp0bin\wget" -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2:.zip=-download-log.txt%"
 echo DOWNLOADING %base%%link3%%file3%
-%~dp0bin\wget -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3:.zip=-download-log.txt%"
+"%~dp0bin\wget" -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3:.zip=-download-log.txt%"
 set downloaded="yes"
 :test
 echo Checking MD5 hashes %file1%
-bin\fciv.exe -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
+"%~dp0bin\fciv.exe" -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
 echo Checking MD5 hashes %file2%
-bin\fciv.exe -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt%
+"%~dp0bin\fciv.exe" -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt%
 echo Checking MD5 hashes %file3%
-bin\fciv.exe -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt%
+"%~dp0bin\fciv.exe" -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt%
 find "%md5-1%" /I "%save%\%file1:.zip=-md5.txt%" > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
@@ -397,12 +397,12 @@ echo(
 :extract
 set working=%~dp0
 cd %save%
-%working%bin\unzip.exe -u %save%\%file1% -d %save%\update1\
-%working%bin\unzip.exe -u %save%\%file2% -d %save%\update2\
-%working%bin\unzip.exe -u %save%\%file3% -d %save%\update3\
-%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update1\UPDATE.APP
-%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update2\UPDATE.APP
-%working%bin\perl\bin\perl.exe %working%bin\splitupdate %save%\update3\UPDATE.APP
+"%working%bin\unzip.exe" -u %save%\%file1% -d %save%\update1\
+"%working%bin\unzip.exe" -u %save%\%file2% -d %save%\update2\
+"%working%bin\unzip.exe" -u %save%\%file3% -d %save%\update3\
+"%working%bin\perl\bin\perl.exe" %working%bin\splitupdate %save%\update1\UPDATE.APP
+"%working%bin\perl\bin\perl.exe" %working%bin\splitupdate %save%\update2\UPDATE.APP
+"%working%bin\perl\bin\perl.exe" %working%bin\splitupdate %save%\update3\UPDATE.APP
 cd %working%
 
 :transfer
