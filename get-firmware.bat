@@ -1,17 +1,16 @@
 @echo off
 cls
 color 0e
-echo CHECKING FOR NEWEST VERSION
-::%~dp0bin\wget -O %~dp0bin\current-version.txt http: 2> nul
-< %~dp0bin\current-version.txt ( set /P "newver=" & set /P "newdate=" )
-set ver=V-17
-set downloaded=no
-title 		Firmware Grabber %ver%
+title 		Firmware Grabber
 if not defined in_subprocess (cmd /k set in_subprocess=y ^& %0 %*) & exit )
 setlocal EnableDelayedExpansion
-:start
-cls
 IF EXIST "bin" SET PATH=%PATH%;"bin"
+echo CHECKING FOR NEWEST VERSION
+%~dp0bin\wget -O %~dp0bin\current_version.txt https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/bin/current_version.txt
+< %~dp0bin\current_version.txt ( set /p "newver=" )
+set ver=V-17.1
+set downloaded=no
+:start
 if exist %~dp0*.txt del %~dp0*.txt
 if exist %~dp0*.json del %~dp0*.json
 if exist %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml del  %userprofile%\Desktop\UPDATE\%model%-%cust%\changelog.xml
@@ -21,7 +20,7 @@ cls
 echo(
 echo(
 cecho  {0c} ***************************************************{#}{\n}
-cecho   *  {0E}             Newest Version IS %newver%  %newdate%{#}      *{\n}
+echo   *     Newest Version IS %newver%                      *
 cecho   *  {0E}   DO YOU WANT TO DOWNLOAD LATEST SCRIPT {#}      *{\n}
 cecho   *  {06}   OR RUN CURRENT VERSION??  %ver%           {#}       *{\n}
 cecho   {0c}***************************************************{#}{\n}
