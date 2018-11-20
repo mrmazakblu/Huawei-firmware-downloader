@@ -254,7 +254,7 @@ call "%~dp0bin\jrepl" "\]}" "" /M /X /f "%~dp0filelist.json" /o -
 for /f "tokens=* delims=" %%a in ('findstr "FullOTA" "%~dp0filelist.json"') do echo %%a >> "%~dp0mytext.json"
 for /f "tokens=* delims=" %%a in ('findstr "%cust%" "%~dp0myText.json"') do echo %%a >> "%~dp0full-firmware.json"
 for /f "tokens=* delims=" %%a in ('""%~dp0bin\jq-win64.exe" .firmware "%~dp0full-firmware.json""') do echo %%a >> "%~dp0versions.txt"
-for /f "tokens=* delims=" %%a in ('bin\jq-win64.exe .changelog_link full-firmware.json') do echo %%a >> "%~dp0dl-address.txt"
+for /f "tokens=* delims=" %%a in ('""%~dp0bin\jq-win64.exe" .changelog_link "%~dp0full-firmware.json""') do echo %%a >> "%~dp0dl-address.txt"
 call "%~dp0bin\merge.bat" "%~dp0versions.txt" "%~dp0dl-address.txt" "%~dp0new-merge.txt"
 findstr /n "^" "%~dp0new-merge.txt" > "%~dp0numbered-merge.txt"
 call "%~dp0bin\jrepl" "\x22  \x22" "=" /M /X /f "%~dp0numbered-merge.txt" /o -
