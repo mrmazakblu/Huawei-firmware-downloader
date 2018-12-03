@@ -8,7 +8,7 @@ IF EXIST "bin" SET PATH=%PATH%;"bin"
 echo CHECKING FOR NEWEST VERSION
 "%~dp0bin\wget" -O "%~dp0bin\current_version.txt" https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/bin/current_version.txt
 < "%~dp0bin\current_version.txt" ( set /p "newver=" )
-set ver=V-17.1
+set ver=V-17.2
 set downloaded=no
 :start
 if exist "%~dp0*.txt" del "%~dp0*.txt"
