@@ -36,18 +36,18 @@ echo @echo off > "%~dp0grabber-update\grabber-update.bat"
 echo( >> "%~dp0grabber-update\grabber-update.bat"
 echo timeout 10 >> "%~dp0grabber-update\grabber-update.bat"
 echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" rd /s /q "%~dp0bin" /Q >> "%~dp0grabber-update\grabber-update.bat"
-echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" echo d ^| xcopy /Y /E /H  %~dp0grabber-update\Huawei-firmware-downloader-master\bin %~dp0bin >> "%~dp0grabber-update\grabber-update.bat"
+echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" echo d ^| xcopy /Y /E /H  "%~dp0grabber-update\Huawei-firmware-downloader-master\bin" "%~dp0bin" >> "%~dp0grabber-update\grabber-update.bat"
 echo echo f ^| xcopy /Y "%~dp0get-firmware.bat" "%~dp0get-firmware.bak" >> "%~dp0grabber-update\grabber-update.bat"
 echo IF EXIST "%~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat" echo f ^| xcopy /Y "%~dp0grabber-update\Huawei-firmware-downloader-master\get-firmware.bat" "%~dp0get-firmware.bat" >> "%~dp0grabber-update\grabber-update.bat"
 echo timeout 5 >> "%~dp0grabber-update\grabber-update.bat"
-echo start %~dp0get-firmware.bat >> "%~dp0grabber-update\grabber-update.bat"
+echo start "" "%~dp0get-firmware.bat" >> "%~dp0grabber-update\grabber-update.bat"
 echo timeout 2 >> "%~dp0grabber-update\grabber-update.bat"
 echo exit >> "%~dp0grabber-update\grabber-update.bat"
 echo Downloading files from GitHub Repo
-"%~dp0bin\wget.exe" -P "%~dp0grabber-update\" https://github.com/mrmazakblu/Huawei-firmware-downloader/archive/master.zip 2> "%~dp0update-logs\tool-download-log.txt"
-"%~dp0bin\unzip.exe" -u "%~dp0grabber-update\master.zip" -d "%~dp0grabber-update\"
-start "%~dp0grabber-update\grabber-update.bat"
+"%~dp0bin\wget.exe" -P "%~dp0grabber-update" https://github.com/mrmazakblu/Huawei-firmware-downloader/archive/master.zip 2> "%~dp0update-logs\tool-download-log.txt"
 echo DONE WITH DOWNLAD. EXITING NOW TO UPDATE THE BIN AND THIS SCRIPT
+"%~dp0bin\unzip.exe" -u "%~dp0grabber-update\master.zip" -d "%~dp0grabber-update"
+start "" "%~dp0grabber-update\grabber-update.bat"
 timeout 3
 exit
 :run
