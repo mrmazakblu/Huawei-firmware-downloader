@@ -8,6 +8,7 @@ IF EXIST "bin" SET PATH=%PATH%;"bin"
 echo CHECKING FOR NEWEST VERSION
 "%~dp0bin\wget" -O "%~dp0bin\current_version.txt" https://raw.githubusercontent.com/mrmazakblu/Huawei-firmware-downloader/master/bin/current_version.txt
 < "%~dp0bin\current_version.txt" ( set /p "newver=" )
+IF "%newver%" == "" SET newver=Failed_To_Retreave
 set ver=V-17.2
 set downloaded=no
 :start
@@ -336,21 +337,36 @@ CHOICE  /C 12 /M "Download Now 1=Yes  or 2=NO"
 IF ERRORLEVEL 2 GOTO:test
 IF ERRORLEVEL 1 GOTO:continue
 :continue
-echo DOWNLOADING %base%%link1%%file1%
-"%~dp0bin\wget" -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1:.zip=-download-log.txt%"
-echo DOWNLOADING %base%%link2%%file2%
-"%~dp0bin\wget" -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2:.zip=-download-log.txt%"
-echo DOWNLOADING %base%%link3%%file3%
-"%~dp0bin\wget" -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3:.zip=-download-log.txt%"
+IF "%file1%" == "" ( echo SKIP file 1 is not found
+) ELSE (
+	echo DOWNLOADING %base%%link1%%file1%
+	"%~dp0bin\wget" -P %save% %base%%link1%%file1% 2> "%~dp0update-logs\%file1:.zip=-download-log.txt%" )
+IF "%file2%" == "" ( echo SKIP file 2 is not found
+) ELSE (
+	echo DOWNLOADING %base%%link2%%file2%
+	"%~dp0bin\wget" -P %save% %base%%link2%%file2% 2> "%~dp0update-logs\%file2:.zip=-download-log.txt%" )
+IF "%file3%" == "" ( echo SKIP file 3 is not found
+) ELSE (
+	echo DOWNLOADING %base%%link3%%file3%
+	"%~dp0bin\wget" -P %save% %base%%link3%%file3% 2> "%~dp0update-logs\%file3:.zip=-download-log.txt%" )
 set downloaded="yes"
 :test
-echo Checking MD5 hashes %file1%
-"%~dp0bin\fciv.exe" -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt%
-echo Checking MD5 hashes %file2%
-"%~dp0bin\fciv.exe" -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt%
-echo Checking MD5 hashes %file3%
-"%~dp0bin\fciv.exe" -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt%
-echo %md5-1% %md5-2% %md5-3%
+IF "%file1%" == "" ( echo SKIP file 1 is not found
+) ELSE (
+	echo Checking MD5 hashes %file1%
+	"%~dp0bin\fciv.exe" -add %save%\%file1% -md5 > %save%\%file1:.zip=-md5.txt% )
+IF "%file2%" == "" ( echo SKIP file 2 is not found
+) ELSE (
+	echo Checking MD5 hashes %file2%
+	"%~dp0bin\fciv.exe" -add %save%\%file2% -md5 > %save%\%file2:.zip=-md5.txt% )
+IF "%file3%" == "" ( echo SKIP file 3 is not found
+) ELSE (
+	echo Checking MD5 hashes %file3%
+	"%~dp0bin\fciv.exe" -add %save%\%file3% -md5 > %save%\%file3:.zip=-md5.txt% )
+::echo %md5-1% %md5-2% %md5-3%
+:check_file_1
+IF "%file1%" == "" ( echo SKIP file 1 is not found
+	GOTO:check_file_2 )
 find "%md5-1%" /I %save%\%file1:.zip=-md5.txt% > nul
 if errorlevel 1 (
     echo MD5-1 MISSMATCH
@@ -359,8 +375,10 @@ if errorlevel 1 (
 	echo Tool will continue, But you should not use %file1%
 	pause
 ) else (
-	echo md5-1 ok continue
-)
+	echo md5-1 ok continue )
+:check_file_2
+IF "%file2%" == "" ( echo SKIP file 2 is not found
+	GOTO:check_file_3 )
 find "%md5-2%" /I %save%\%file2:.zip=-md5.txt% > nul
 if errorlevel 1 (
     echo MD5-2 MISSMATCH
@@ -369,8 +387,10 @@ if errorlevel 1 (
 	echo Tool will continue, But you should not use %file2%
 	pause
 ) else (
-	echo md5-2 ok continue
-)
+	echo md5-2 ok continue )
+:check_file_3
+IF "%file3%" == "" ( echo SKIP file 3 is not found
+	GOTO:Done_checks )
 find "%md5-3%" /I %save%\%file3:.zip=-md5.txt% > nul
 if errorlevel 1 (
     echo MD5-3 MISSMATCH
@@ -379,8 +399,8 @@ if errorlevel 1 (
 	echo Tool will continue, But you should not use %file3%
 	pause
 ) else (
-	echo md5-3 ok continue
-)
+	echo md5-3 ok continue )
+:Done_checks
 echo( 
 echo   ***************************************************
 cecho   * {0B}      EXTRACT IMAGES FROM UPDATE.APP  {#}     *{\n}
@@ -400,27 +420,26 @@ set working=%~dp0
 ::set update1=%file1:.zip=%
 ::set update2=%file2:.zip=%
 ::set update3=%file3:.zip=%
+@echo on
 cd %save%
-"%working%bin\unzip.exe" -u %save%\%file1% -d %save%\update1\
-"%working%bin\unzip.exe" -u %save%\%file2% -d %save%\update2\
-"%working%bin\unzip.exe" -u %save%\%file3% -d %save%\update3\
-"%working%bin\perl\bin\perl.exe" %working%bin\splitupdate %save%\update1\UPDATE.APP
-"%working%bin\perl\bin\perl.exe" %working%bin\splitupdate %save%\update2\UPDATE.APP
-"%working%bin\perl\bin\perl.exe" %working%bin\splitupdate %save%\update3\UPDATE.APP
+IF "%file1%" == "" ( echo SKIP file 1 is not found
+) ELSE (
+	echo Unzipping %file1%
+	"%working%bin\unzip.exe" -u %save%\%file1% -d %save%\update1  2> "%working%update-logs\%file1:.zip=-extract-log.txt%" )
+IF "%file2%" == "" ( echo SKIP file 2 is not found
+) ELSE (
+	echo Unzipping %file2%
+	"%working%bin\unzip.exe" -u %save%\%file2% -d %save%\update2  2> "%working%update-logs\%file2:.zip=-extract-log.txt%" )
+IF "%file3%" == "" ( echo SKIP file 3 is not found
+) ELSE (
+	echo Unzipping %file3%
+	"%working%bin\unzip.exe" -u %save%\%file3% -d %save%\update3  2> "%working%update-logs\%file3:.zip=-extract-log.txt%" )
+IF EXIST "%save%\update1\UPDATE.APP" "%working%bin\perl\bin\perl.exe" "%working%bin\splitupdate" "%save%\update1\UPDATE.APP"
+IF EXIST "%save%\update2\UPDATE.APP" "%working%bin\perl\bin\perl.exe" "%working%bin\splitupdate" "%save%\update2\UPDATE.APP"
+IF EXIST "%save%\update3\UPDATE.APP" "%working%bin\perl\bin\perl.exe" "%working%bin\splitupdate" "%save%\update3\UPDATE.APP"
 cd %working%
 
 :transfer
-for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
-echo %recovery%
-IF "%recovery%" == "bootdevice" (
-	echo Partition layout Does not match Nougat
-	set HWOTA=HWOTA8)
-set recovery=""
-for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery_ramdisk') do set recovery=%%i
-echo %recovery%
-IF "%recovery%" == "bootdevice" (
-	echo Partition layout Does not match Oreo
-	set HWOTA=HWOTA7)
 echo( 
 echo   ***************************************************
 cecho   * {0B}     Partition table shows you need to use %HWOTA%{#}      *{\n}
@@ -437,6 +456,17 @@ echo(
 :donotmove
 GOTO:FINISH
 :move
+for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery') do set recovery=%%i
+echo %recovery%
+IF "%recovery%" == "bootdevice" (
+	echo Partition layout Does not match Nougat
+	set HWOTA=HWOTA8)
+set recovery=""
+for /f "tokens=5 delims=/:" %%i in ('adb shell ls /dev/block/bootdevice/by-name/recovery_ramdisk') do set recovery=%%i
+echo %recovery%
+IF "%recovery%" == "bootdevice" (
+	echo Partition layout Does not match Oreo
+	set HWOTA=HWOTA7)
 adb shell mkdir /mnt/ext_sdcard/%HWOTA%
 :move_1
 adb push %save%\%file1% /mnt/ext_sdcard/%HWOTA%
